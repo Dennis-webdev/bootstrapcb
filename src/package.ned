@@ -1,0 +1,3 @@
+package bootstrapcb;
+
+@license(LGPL);
