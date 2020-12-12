@@ -1,3 +1,9 @@
 # LaTeX
 
 *.aux
+*.log
+*.loa
+*.lof
+*.thm
+*.toc
+*.gz
