@@ -2,13 +2,13 @@
 \include{header}
 \begin{document}
 \selectlanguage{german}
-\include{kapitel/titelseite}
-%\blankpage
-%\pagenumbering{roman}
-%\tableofcontents
-%\cleardoublepage
-%\pagenumbering{arabic}
-% Kapitel
-\include{kapitel/proposal}
-\end{document}
 
+\include{kapitel/titelseite}
+\include{kapitel/proposal}
+
+% Literaturverzeichnis
+\bibliographystyle{gerplain}
+\bibliography{literatur/diplom}
+\addcontentsline{toc}{chapter}{\bibname}
+
+\end{document}
