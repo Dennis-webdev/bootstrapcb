@@ -1,4 +1,7 @@
 # LaTeX
 
 *.log
-
+*.aux
+*.nav
+*.snm
+*.toc
