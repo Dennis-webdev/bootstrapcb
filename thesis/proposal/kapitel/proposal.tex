@@ -1,19 +1,56 @@
 % proposal.tex
 \section{Einleitung}
-- Bei der Regression Statistischer Daten ist es meistens notwendig Konfidenzbänder zu bestimmen \\
-- das kann einfach für einzelne Werte einer Zufallsvariable gemacht werden \\
-- aber manchmal werden diese Konfidenzbereiche für alle Werte gleichzeitig benötig (simultaneous confidence bands) \\
-- Mit anderen Worten: Das Problem ist eine Konfidenzband zu bestimmen in dem die gesamte Regressionsfunktion mit gegebenr Konfidenz liegt \\
-- Wir wollen einen Computer-intensiven Ansatz vorstellen, mit dem solche Konfidenzbänder einfach bestimmt werden können \\
-- Vorteile dieser Methode wird sein: es muss keine Normalverteilung der Zufallsvariablen vorausgesetzt werden, wie bei gewöhnlichen Methoden, da eine akkurate Deckung mittels bootstrap resampling erreicht wird \\
+Um bei der statistischen Auswertung die Genauigkeit einer auf Grund von Stichproben ermittelten Schätzfunktion zu bestimmen, ist es oft notwendig, ein Konfidenzintervall für den Schätzer $\hat{\theta}$ des Parameters $\theta$ anzugeben. 
+Ziel ist es dieses Intervall so zu konstruieren, dass es den wahren Wert von $\theta$  mit hoher Wahrscheinlichkeit (oft 95\%) überdeckt. 
+Für einzelne Werte der Zufallsvariable kann dies leicht erreicht werden, häufig verwendete Verfahren sind z.B. die Maximum-Likelihood-Methode und die Bootstrap-Methode. 
+In manchen Fällen jedoch benötigt man solche eine Bereichsschätzung für einen ganzen Bereich von Werten der Zufallsvariable. 
+Da der Konfidenzbereich in diesem Fall für mehrere Werte der Zufallsvariable gleichzeitig gilt, spricht man nicht mehr von einem Konfidenzintervall, sondern von einem Konfidenzband. 
+Mit anderen Worten, gesucht ist ein Konfidenzband, welches die gesamte wahre Verteilungsfunktion mit großer Wahrscheinlichkeit überdeckt.
 
 \section{Problembeschreibung und Ziele}
-- Vorstellung des Bootstrapping-Ansatzes zur Bestimmung von Konfidenzbändern von Verteilungsfunktionen (z.B. der Verweilzeit in einem System) \\
-\hspace*{20px} -  \\
-- Implementierung der Verfahren im Kontext von OMNeT++ \\
-- Empirische Bewertung der Konfidenzbänder auf Basis einfacher Beispiele \\
+Herkömmliche analytische Verfahren zur Bestimmung von Konfidenzbändern wie z.B. die Bonferroni-Methode, gehen oft davon aus, dass $\theta$ Normalverteilt ist und die Regressionsfunktion $\eta(x,\theta)$ linear angenähert werden kann.
+Ähnlich wie bei Konfidenzintervallen bietet Bootstrapping auch hier eine einfache Alternative in Fällen, in denen etwa eine Verteilungsannahme von $\theta$ nur zweifelhaft bzw. gar nicht vorausgesetzt werden kann. 
+Für den Einsatz von Bootstrap zur Bestimmung von Konfidenzbändern gibt es verschieden Herangehensweisen, zwei solcher Ansätze werden in \cite{1,2} diskutiert. 
+Im ersten Fall nimmt man an, dass $\theta$ Normalverteilt ist, verzichtet aber auf die lineare Approximation von $\eta(x,\theta)$. 
+Man spricht daher von parametrischem Boostrapping.
+Im zweiten Fall, dem nicht-parametrischen Boostrapping, wird zusätzlich keine Verteilungsannahme getroffen, sondern die Verteilung von $\theta$ wird ebenfalls mit Hilfe des Resampling-Verfahrens geschätzt. 
+Diese Variante ist rechenintensiver, kann aber in allgemeineren Fällen angewendet werden.
 
-\section{Theoretische Grundlagen}
--  \\
+Obwohl es einige theoretische Ansätze zur Bestimmung von Konfidenzbändern mittels Bootstrap gibt, sind Implementierungen der Verfahren und Umsetzungen als Algorithmen in der Literatur eher selten bis nicht existent.
+Ich möchte in meiner Arbeit einige solcher Methoden vorstellen und im Kontext von OMNeT++ implementieren.
+Die Verfahren sollen in C++ implementiert und anschließend nach Möglichkeit in die OMNeT++ IDE integriert werden.
+Darüber hinaus soll eine empirisch Bewertung der Konfidenzbänder anhand von einfachen Beispielen in Form einer OMNeT++ Simulation erfolgen.
+Folgenden Zeitplan hab ich für meine Arbeit vorgesehen:
 
-\section{Grober Projektplan}
+
+\section{Zeitplan}
+\begin{ganttchart}[
+    hgrid,
+    vgrid={*{6}{draw=none}, dotted},
+    x unit=0.12cm,
+    time slot format=isodate,
+    time slot unit=day,
+    calendar week text = {W\currentweek{}},
+    bar height = 1, %necessary to make it fit the height
+    bar top shift = -0.01, %to move it inside the grid space ;)
+    ]{2021-01-04}{2021-04-18}
+    \gantttitlecalendar{year, month=name, week} \\
+    \ganttbar[bar/.append style={fill=red!50}]{Recherche}{2021-01-04}{2021-01-31}\\
+    \ganttbar[bar/.append style={fill=yellow!50}]{Implementierung}{2021-01-25}{2021-02-21}\\
+    \ganttbar[bar/.append style={fill=cyan!50}]{Schreibphase}{2021-02-22}{2021-04-04}\\
+    \ganttbar[bar/.append style={fill=green!50}]{Korrekturphase}{2021-04-05}{2021-04-18}
+\end{ganttchart}
+
+\vspace*{0.5cm}
+\begin{description}
+\item[W1 - W2:] Recherche zu Konfidenzbändern und Bootstrapping-Ansätze zur Bestimmung von Konfidenzbändern
+\item[W3:] Inhaltsverzeichnis, Einleitung und Vorstellung der Bootstrapping-Ansätze verfassen
+\item[W4:] Recherche zu Parameterstudien, Auswertung und Darstellung in Kontext von OMNeT++
+\item[W5:] Erstellung einfacher Beispielen als Grundlage für die empirische Bewertung der Verfahren
+\item[W6 - W7:]
+Implementierung der Verfahren in C++ und Integration in die OMNeT++ IDE
+\item[W8:] Implementierung dokumentieren
+\item[W9 - W11:] Anwendung der Verfahren und empirische Bewertung anhander der Beispiele dokumentieren
+\item[W12 - W13:] Fazit schreiben und erster Entwurf der Bachelorarbeit sollte fertiggestellt werden
+\item[W14 - W15:] Korrekturlesen und Anpassungen vornehmen
+\end{description}

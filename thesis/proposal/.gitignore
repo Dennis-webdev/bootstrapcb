@@ -7,3 +7,7 @@
 *.thm
 *.toc
 *.gz
+*.xml
+*.bbl
+*.bcf
+*.blg
