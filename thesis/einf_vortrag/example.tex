@@ -65,27 +65,25 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-  \frametitle{PIBA - vier Stichpunkte (anstatt Gliederungsfolie)}
-  \begin{itemize}
-    \item Was ist das Problem? -> Implementierung von Bootstrap-Ansätzen zur Bestimmung von Konfidenzbändern
-    \item Idee? -> Implementierung einiger Ansätze im Kontext von OMNeT++, Integration in die IDE nach Möglichkeit und Bewertung anhand von Simulationen
-    \item Vorteil? -> Boostrap ist ein simples und allgemeines Verfahren und einsetzbar in ungewissen situationen -> die arbeit gibt einen erfahrungswert
-    \item Aktion? -> zuerst die genannten und weitere Ansätze genauer recherchieren und vorstellen, dann in C++ im Kontext von OMNeT++ implementieren und nach Möglichkeit in die IDE integrieren, dann testen der Methoden anhand von einfachen Beispielen in Form einer OMNeT++ Simulation (z.B. ...)
-  \end{itemize}
-\end{frame}
+%\begin{frame}
+%  \frametitle{PIBA - vier Stichpunkte (anstatt Gliederungsfolie)}
+%\end{frame}
 
 \begin{frame}
   \frametitle{Grundlagen}
   \begin{itemize}
-    \item Konfidenzintervalle \\
-    $P\left( \theta_L \le \theta_0 \le \theta_U \right) = 1-\alpha$
+    \item Regressionsfunktion $\eta(x, \theta)$: \\ 
+    gesucht ist $\theta_0$ mit $y_j = \eta(x_j, \theta_0) + \epsilon_j$, $j = 1,2...,n$ und $\epsilon \sim N(0, \sigma^2)$ \\
+    \item Schätzer $\hat{y}(x) = \eta(x, \hat\theta)$ für den "wahren Wert" $E(y|x) = \eta(x, \theta_0)$ \\
+    \item Konfidenzintervall für den Schätzer: \\
+    $P\left( \theta_L \le \theta_0 \le \theta_U \right) \geq 1-\alpha$
     \\
-    $\theta_L, \theta_U = \hat\theta \mp z_{\alpha/2}\sqrt{\mathbf{V}(\hat\theta)}$
+    z.B. $\theta_L, \theta_U = \hat\theta \mp z_{\alpha/2}\sqrt{\mathbf{V}(\hat\theta)}$
     \\
+    \item Konfidenzintervall für einen Punkt der Regressionsfunktion: \\
     $\forall x: P\left(y_L(x) \le \eta(x, \theta_0) \le y_U(x)\right) \geq 1-\alpha$
     \\
-    $y_L(x), y_U(x) = \eta(x, \hat\theta) \mp 
+    z.B. $y_L(x), y_U(x) = \eta(x, \hat\theta) \mp 
     z_{\alpha/2}
     \sqrt{
       \left(
@@ -96,10 +94,10 @@
         \frac{\partial\eta(x, \theta)}{\partial\theta}
       \right)_{\hat\theta}
     }$
-    \item Konfidenzbänder \\
+    \item Konfidenzband für die Regressionsfunktion: \\
     $P\left(\forall x: y_L(x) \le \eta(x, \theta_0) \le y_U(x) \right ) \geq 1-\alpha$
     \\
-    $y_L(x), y_U(x) = \eta(x, \hat\theta) \mp 
+    z.B. $y_L(x), y_U(x) = \eta(x, \hat\theta) \mp 
     \sqrt{
       \chi_p^2(a)
       \left(
@@ -115,15 +113,9 @@
 
 \begin{frame}
   \frametitle{Grundlagen}
-  \begin{itemize}
-    \item analytische Verfahren zur Bestimmung von Konfidenzbändern
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Grundlagen}
-  \begin{itemize}
-    \item Basic-Sampling-Methode \\
+  \hspace{20px} \vline \hspace{5px}   
+  \begin{minipage}[t]{0.3\linewidth}
+    Basic-Sampling-Methode: \\
     \begin{algorithmic}
 			\For {$j=0$ to $B$}
 				\For {$i=0$ to $n$} 
@@ -133,7 +125,10 @@
 			\EndFor
 			\State Form the EDF $G_n(.|s)$
 	  \end{algorithmic}
-    \item Bootstrap-Methode \\
+  \end{minipage}
+  \hspace{10px} \vline \hspace{5px}
+  \begin{minipage}[t]{0.48\linewidth}    
+    Bootstrap-Methode: \\
     \begin{algorithmic}
       \Require Random sample $y = (y_1, y_2, ...y_n)$ from $F(.)$
       \State Form the EDF $F_n(.|y)$
@@ -145,7 +140,7 @@
 			\EndFor
 			\State Form the EDF $G_n(.|s*)$
 	  \end{algorithmic}
-  \end{itemize}
+  \end{minipage}
 \end{frame}
 
 \begin{frame}
@@ -165,11 +160,22 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{2 Lösungsansatze}
+  \frametitle{Lösungsansatze}
+  In den Papern werden 2 Lösungsansätze vorgestellt, die Bootstrap zur Vereinfachung der erwähnten analytischen Verfahren einsetzten
   \begin{itemize}
-    \item Parametric Bootstrap
-    \item Non-Parametric Bootstrap
+    \item Parametric Bootstrap:
+    \begin{itemize}
+      \item setzt voraus, dass $\hat\theta$ als normalverteilt angenommen werden kann, also $\hat\theta \sim N(\theta_0, \mathbf{V}(\theta_0))$
+      \item verzichtet allerdings auf lineare Approximation von $\eta(x,\theta)$ durch die Delta-Methode
+    \end{itemize}
+    \item Non-Parametric Bootstrap:
+    \begin{itemize}
+      \item keine Verteilungsannahme über $\hat\theta$
+      \item und auch keine lineare Approximation von $\eta(x,\theta)$
+      \item rechenintensiv, da geschachteltes Bootstrap 
+    \end{itemize}
   \end{itemize}
+  Es gibt allerding auch andere analytische Verfahren zur Bestimmung von Konfindenzbändern, bei denen Bootstrap zum Einsatz kommen kann.
 \end{frame}
 
 \begin{frame}
@@ -179,7 +185,7 @@
 	    \includegraphics[width=0.8\textwidth]{images/5.png}
 	    \caption{Morocco Pulmonary TB notifications per 100,000}
 	  \end{figure}
-  \end{minipage}
+  \end{minipage} 
   \begin{minipage}[t]{0.48\linewidth}
 	  \begin{figure}
 	    \includegraphics[width=0.4\textwidth]{images/6.png}
@@ -187,14 +193,15 @@
 	  \end{figure}
 	\end{minipage}
 	\begin{figure}
-	  Als Modell wurde gewählt: \\
-		\begin{center}
-	      $y_j = (\theta_2 + \theta_4 x_j + \theta_6 x^2_j)
+	  Als Modell wurde gewählt: 
+		\begin{align*}
+		    y_j = (\theta_2 + \theta_4 x_j + \theta_6 x^2_j)
 			  \frac{
 			    exp(\theta_5(x_j - \theta_3))}{
 			    1 + exp(\theta_5(x_j - \theta_3))
-			  } + \epsilon_j$	
-		\end{center}
+			  } + \epsilon_j
+		\end{align*}
+		wobei $\epsilon_j \sim N(0, \theta_1^2)$
 	\end{figure}
 \end{frame}
 
@@ -230,7 +237,13 @@
   \end{center}
 \end{frame}
 
-\begin{frame}
-  Zusammenfassung, dazu einfach PIBA-Folie (Folie 2) nochmals auflegen
-\end{frame}
+%	\begin{frame}
+%	  \frametitle{PIBA - vier Stichpunkte (anstatt Gliederungsfolie)}
+%	  \begin{itemize}
+%	    \item Was ist das Problem? -> Implementierung von Bootstrap-Ansätzen zur Bestimmung von Konfidenzbändern
+%	    \item Idee? -> Implementierung einiger Ansätze im Kontext von OMNeT++, Integration in die IDE nach Möglichkeit und Bewertung anhand von Simulationen
+%	    \item Vorteil? -> Boostrap ist ein simples und allgemeines Verfahren und einsetzbar in ungewissen situationen -> die arbeit gibt einen erfahrungswert
+%	    \item Aktion? -> zuerst die genannten und weitere Ansätze genauer recherchieren und vorstellen, dann in C++ im Kontext von OMNeT++ implementieren und nach Möglichkeit in die IDE integrieren, dann testen der Methoden anhand von einfachen Beispielen in Form einer OMNeT++ Simulation (z.B. ...)
+%	  \end{itemize}
+%	\end{frame}
 \end{document}
