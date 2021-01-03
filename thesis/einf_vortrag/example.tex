@@ -17,6 +17,9 @@
 \usepackage{hyperref}
 \usepackage{bookmark}
 
+% mine
+\usepackage{algpseudocode}
+
 % load the theme after all packages
 
 \usetheme[
@@ -43,55 +46,191 @@
 \maketitle
 
 \begin{frame}
-  test
+  \frametitle{Motivation und Problemstellung}
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{images/4.png}
+  \end{center}
 \end{frame}
 
-\begin{frame}{Hinweise}
-  Zu diesem Theme
-  \begin{itemize}
-    \item Zur Installation des Themese muss mindestens die Datei \texttt{beamerthemetudo.sty} und der Ordner \texttt{logos} in einen Ordner verschoben werden, in dem \LaTeX nach Paketen sucht.
-      Dies können sein
-      \begin{itemize}
-        \item \texttt{TEXMFHOME/tex/latex/tudobeamertheme}. Den Wert von \texttt{TEXMFHOME} bekommen sie über \texttt{kpsewhich --var-value TEXMFHOME}, üblicherweise ist dies \texttt{\$HOME/texmf}.
-        \item Der gleiche Ordner in dem Sie ihr Dokument kompilieren
-        \item Ein beliebiger Ordner, der in der Variablen \texttt{TEXINPUTS} enthalten ist.
-      \end{itemize}
-  \end{itemize}
-  
-  Oneliner zur Installation:\\
-  \texttt{\footnotesize\$ cd `kpsewhich --var-value TEXMFHOME` \&\& git clone https://github.com/maxnoe/tudobeamertheme}
-
-  \medskip
-  Allgemein zu Beamer und Latex:
-  \begin{itemize}
-    \item Umfangreicher \LaTeX-Kurs von PeP et Al. \\
-      \url{http://toolbox.pep-dortmund.org/notes}
-    \item Latex-Beamer Dokumetation:\\
-    \url{http://www.ctan.org/pkg/beamer}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Einführung}
-  \tableofcontents
-\end{frame}
-
-\section{Fonts}
 \begin{frame}
-  Der Font der im Corporate Design der TU Dortmund vorgesehen ist,
-  ist \enquote{Akkurat Office}.
-
-  Falls dieser nicht verfügbar ist, wird als Alternative \enquote{Fira Sans}
-  verwendet.
-
-  Für Mathematik wird bei Verwendung von \texttt{xelatex} oder \texttt{lualatex} der Font \enquote{Fira Math} verwendet.
+  \frametitle{Motivation und Problemstellung}
+  \begin{itemize}
+    \item Konfidenzintervalle sind visuelle Hilfestellung zum interpretieren der Daten
+    \item die Intervalle gelten jeweils immer nur für einen Messwert
+    \item manchmal möchte man solche Schätzungen für die ganze Regressionsfunktion haben, dann benötigt man Konfidenzbänder
+    \item Es gibt viele Verschiedene Methoden zu Bestimmung von Konfidenzbändern
+    \item neben analytischen Verfahren, kann auch Bootstrap eingestetzt werden -> einfacher, aber ähnlich gut
+    \item zwar theoretische ansätze in der Literatur aber wenig tatsächliche Implementierungen und damit Emipirischer Vergleich zu herkömlichen Methoden
+    \item (Aufgabe ist also vorstellung der Methoden, umsetztung in Omnet und empirischer Vergleich zu anderen CBs)
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{Mathe}
-  \begin{align*}
-    \nabla \cdot \symbf{B} &= 0 &
-    \nabla \cdot \symbf{E} &= \frac{ρ}{ε_0} \\
-    \nabla \times \symbf{E} &= -\partial_t \symbf{B} &
-    \nabla \times \symbf{B} &= μ_0 \symbf{j} + μ_0 ε_0 \partial_t \symbf{E} &
-  \end{align*}
+\begin{frame}
+  \frametitle{PIBA - vier Stichpunkte (anstatt Gliederungsfolie)}
+  \begin{itemize}
+    \item Was ist das Problem? -> Implementierung von Bootstrap-Ansätzen zur Bestimmung von Konfidenzbändern
+    \item Idee? -> Implementierung einiger Ansätze im Kontext von OMNeT++, Integration in die IDE nach Möglichkeit und Bewertung anhand von Simulationen
+    \item Vorteil? -> Boostrap ist ein simples und allgemeines Verfahren und einsetzbar in ungewissen situationen -> die arbeit gibt einen erfahrungswert
+    \item Aktion? -> zuerst die genannten und weitere Ansätze genauer recherchieren und vorstellen, dann in C++ im Kontext von OMNeT++ implementieren und nach Möglichkeit in die IDE integrieren, dann testen der Methoden anhand von einfachen Beispielen in Form einer OMNeT++ Simulation (z.B. ...)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Grundlagen}
+  \begin{itemize}
+    \item Konfidenzintervalle \\
+    $P\left( \theta_L \le \theta_0 \le \theta_U \right) = 1-\alpha$
+    \\
+    $\theta_L, \theta_U = \hat\theta \mp z_{\alpha/2}\sqrt{\mathbf{V}(\hat\theta)}$
+    \\
+    $\forall x: P\left(y_L(x) \le \eta(x, \theta_0) \le y_U(x)\right) \geq 1-\alpha$
+    \\
+    $y_L(x), y_U(x) = \eta(x, \hat\theta) \mp 
+    z_{\alpha/2}
+    \sqrt{
+      \left(
+        \frac{\partial\eta(x, \theta)}{\partial\theta}
+      \right)_{\hat\theta}^T
+      \mathbf{V}(\hat\theta)
+      \left(
+        \frac{\partial\eta(x, \theta)}{\partial\theta}
+      \right)_{\hat\theta}
+    }$
+    \item Konfidenzbänder \\
+    $P\left(\forall x: y_L(x) \le \eta(x, \theta_0) \le y_U(x) \right ) \geq 1-\alpha$
+    \\
+    $y_L(x), y_U(x) = \eta(x, \hat\theta) \mp 
+    \sqrt{
+      \chi_p^2(a)
+      \left(
+        \frac{\partial\eta(x, \theta)}{\partial\theta}
+      \right)_{\hat\theta}^T
+      \mathbf{V}(\hat\theta)
+      \left(
+        \frac{\partial\eta(x, \theta)}{\partial\theta}
+      \right)_{\hat\theta}
+    }$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Grundlagen}
+  \begin{itemize}
+    \item analytische Verfahren zur Bestimmung von Konfidenzbändern
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Grundlagen}
+  \begin{itemize}
+    \item Basic-Sampling-Methode \\
+    \begin{algorithmic}
+			\For {$j=0$ to $B$}
+				\For {$i=0$ to $n$} 
+				  \State Draw sample $y_{ij}$ from $F(.)$
+				\EndFor
+				\State Calculate statistic $s_j = s(y_j)$
+			\EndFor
+			\State Form the EDF $G_n(.|s)$
+	  \end{algorithmic}
+    \item Bootstrap-Methode \\
+    \begin{algorithmic}
+      \Require Random sample $y = (y_1, y_2, ...y_n)$ from $F(.)$
+      \State Form the EDF $F_n(.|y)$
+			\For {$j=0$ to $B$}
+				\For {$i=0$ to $n$} 
+				  \State Draw sample $y^*_{ij}$ from $F_n(.|y)$
+				\EndFor
+				\State Calculate statistic $s^*_j = s(y^*_j)$
+			\EndFor
+			\State Form the EDF $G_n(.|s*)$
+	  \end{algorithmic}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Verwandte Arbeiten} 
+  \begin{itemize}
+    \item Cheng, Russell. (2005). Bootstrapping simultaneous confidence bands. 8 pp.-. 10.1109/WSC.2005.1574257.
+    \item Cheng, Russell. (2015). Bootstrap confidence bands and goodness-of-fit tests in simulation input/output modelling. 16-30. 10.1109/WSC.2015.7408150.
+    \begin{center}
+      \includegraphics[width=0.5\textwidth]{images/3.png}
+    \end{center}
+  \end{itemize}
+  Weitere:
+  \begin{itemize}
+    \item Govind, Nirmal \& Roeder, Theresa. (2006). Estimating Expected Completion Times with Probabilistic Job Routing. 1804-1810. 10.1109/WSC.2006.322958. 
+    \item Wang, Xing \& Wang, Xin \& Sun, Zhaonan. (2009). Comparison on Confidence Bands of Decision Boundary between SVM and Logistic Regression. 272-277. 10.1109/NCM.2009.281.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{2 Lösungsansatze}
+  \begin{itemize}
+    \item Parametric Bootstrap
+    \item Non-Parametric Bootstrap
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Anwendnungs Beispiel}
+  \begin{minipage}[t]{0.48\linewidth}
+	  \begin{figure}
+	    \includegraphics[width=0.8\textwidth]{images/5.png}
+	    \caption{Morocco Pulmonary TB notifications per 100,000}
+	  \end{figure}
+  \end{minipage}
+  \begin{minipage}[t]{0.48\linewidth}
+	  \begin{figure}
+	    \includegraphics[width=0.4\textwidth]{images/6.png}
+	    \caption{MLE’s for the Morocco TB Model}
+	  \end{figure}
+	\end{minipage}
+	\begin{figure}
+	  Als Modell wurde gewählt: \\
+		\begin{center}
+	      $y_j = (\theta_2 + \theta_4 x_j + \theta_6 x^2_j)
+			  \frac{
+			    exp(\theta_5(x_j - \theta_3))}{
+			    1 + exp(\theta_5(x_j - \theta_3))
+			  } + \epsilon_j$	
+		\end{center}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Anwendnungs Beispiel}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{images/1.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Umsetzung}
+  \begin{itemize}
+    \item genauere Recherche zu Konfidenzbändern und Bootstrapping-Ansätze zur Bestimmung von Konfidenzbändern (mehr dimensionale Parameter)
+    \item Recherche zu Parameterstudien, Auswertung und Darstellung in Kontext von OMNeT++
+    \item Erstellung einfacher Beispiele als Grundlage (z.B. für die Evaluation)
+    \item Implementierung der Verfahren in C++ und Integration in die OMNeT++ IDE
+    \item Anwendung der Verfahre anhand der erstellten Beispiele
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Geplante Evaluation}
+  \begin{itemize}
+    \item 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Zeitplan}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{images/2.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  Zusammenfassung, dazu einfach PIBA-Folie (Folie 2) nochmals auflegen
 \end{frame}
 \end{document}

@@ -5,3 +5,8 @@
 *.nav
 *.snm
 *.toc
+*.xml
+*.bbl
+*.bcf
+*.blg
+/example-blx.bib
