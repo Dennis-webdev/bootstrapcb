@@ -55,13 +55,10 @@
 \begin{frame}
   \frametitle{Motivation und Problemstellung}
   \begin{itemize}
-    \item Konfidenzintervalle sind visuelle Hilfestellung zum interpretieren der Daten
-    \item die Intervalle gelten jeweils immer nur für einen Messwert
-    \item manchmal möchte man solche Schätzungen für die ganze Regressionsfunktion haben, dann benötigt man Konfidenzbänder
-    \item Es gibt viele Verschiedene Methoden zu Bestimmung von Konfidenzbändern
-    \item neben analytischen Verfahren, kann auch Bootstrap eingestetzt werden -> einfacher, aber ähnlich gut
-    \item zwar theoretische ansätze in der Literatur aber wenig tatsächliche Implementierungen und damit Emipirischer Vergleich zu herkömlichen Methoden
-    \item (Aufgabe ist also vorstellung der Methoden, umsetztung in Omnet und empirischer Vergleich zu anderen CBs)
+    \item Konfidenzintervalle sind visuelle Hilfsmittel zur Interpretation der Genauigkeit einzelner Schätzwerte
+    \item Konfidenzbänder werden für simultane Schätzungen benötigt
+    \item Es gibt verschiedene Ansätze zur Bestimmung von Konfidenzbändern (analytische Verfahren, aber auch Bootstrap-Verfahren)
+    \item In der Literatur gibt es viele theoretische Diskussionen über die Verwendung von Bootstrap zur Bestimmung von Konfidenzbändern, aber wenige Implementierungen und empirische Ergebnisse
   \end{itemize}
 \end{frame}
 
@@ -161,21 +158,21 @@
 
 \begin{frame}
   \frametitle{Lösungsansatze}
-  In den Papern werden 2 Lösungsansätze vorgestellt, die Bootstrap zur Vereinfachung der erwähnten analytischen Verfahren einsetzten
+  2 Ansätze werden vorgestellt, bei denen Bootstrap zur Vereinfachung der analytischen Verfahren verwendet wird
   \begin{itemize}
     \item Parametric Bootstrap:
     \begin{itemize}
-      \item setzt voraus, dass $\hat\theta$ als normalverteilt angenommen werden kann, also $\hat\theta \sim N(\theta_0, \mathbf{V}(\theta_0))$
-      \item verzichtet allerdings auf lineare Approximation von $\eta(x,\theta)$ durch die Delta-Methode
+      \item setzt voraus, dass $\hat\theta$ als normalverteilt angenommen werden kann, d.h. $\hat\theta \sim N(\theta_0, \mathbf{V}(\theta_0))$
+      \item verzichtet jedoch auf die lineare Approximation von $\eta(x,\theta)$ durch die Delta-Methode
     \end{itemize}
     \item Non-Parametric Bootstrap:
     \begin{itemize}
       \item keine Verteilungsannahme über $\hat\theta$
       \item und auch keine lineare Approximation von $\eta(x,\theta)$
-      \item rechenintensiv, da geschachteltes Bootstrap 
+      \item rechenintensiv wegen verschachteltem Doppel-Bootstrap 
     \end{itemize}
   \end{itemize}
-  Es gibt allerding auch andere analytische Verfahren zur Bestimmung von Konfindenzbändern, bei denen Bootstrap zum Einsatz kommen kann.
+  Es gibt jedoch auch andere analytische Verfahren zur Bestimmung von Konfindenzbändern, bei denen Bootstrap verwendet werden kann
 \end{frame}
 
 \begin{frame}
@@ -215,19 +212,30 @@
 \begin{frame}
   \frametitle{Umsetzung}
   \begin{itemize}
-    \item genauere Recherche zu Konfidenzbändern und Bootstrapping-Ansätze zur Bestimmung von Konfidenzbändern (mehr dimensionale Parameter)
-    \item Recherche zu Parameterstudien, Auswertung und Darstellung in Kontext von OMNeT++
-    \item Erstellung einfacher Beispiele als Grundlage (z.B. für die Evaluation)
-    \item Implementierung der Verfahren in C++ und Integration in die OMNeT++ IDE
-    \item Anwendung der Verfahre anhand der erstellten Beispiele
+    \item 2 Wochen: Vertiefende Recherche der Bootstrap-Ansätzen 
+    \item 1 Woche: Recherche zu Parameterstudien, Auswertung und Darstellung in Kontext von OMNeT++
+    \item 1 Woche: Erstellung von mindestens 2 einfachen Beispielen in Form einer OMNeT++ Simulation
+    \item 2 Wochen: Implementierung der Verfahren in C++ (mindestens die von Cheng (2005) vorgestellten Ansätze)
+    \item 2 Wochen: Anwendung der Verfahren und empirische Bewertung
+  \end{itemize}
+  Zudem:
+  \begin{itemize}
+    \item Die implementierung soll wiederverwendbar sein (über Git) und nach Möglichkeit in die IDE integriert
+    \item Zwischen den Arbeitspaketen sind jeweils Schreibphasen geplant
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Geplante Evaluation}
+  Die Verfahren werden anhand der zuvor erstellten Beispiele getestet:
   \begin{itemize}
-    \item 
+    \item Datenerhebung durch die Simulation 
+    \item Bestimmung eines statistischen Modells und der Regressionsgerade (Modellanpassung)
+    \item Auswertung mit analytischen Verfahren (durch C++-Libraries oder in R)
+    \item Auswertung mit den implementierten Bootstrap-Verfahren
+    \item Vergleich der Konfidenzbänder
   \end{itemize}
+  Es wird erwartet, dass die Bootstrap-Ansätze ähnliche Konfidenzbänder liefern wie die analytischen Methoden und sich diesen annähern
 \end{frame}
 
 \begin{frame}
