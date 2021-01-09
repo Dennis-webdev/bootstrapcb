@@ -1,3 +1,130 @@
 % kapitel2.tex
-\chapter{Das zweite Kapitel}
+\chapter{Grundlagen}
 \label{chapter:kap2}
+
+\section{Regressionsanalyse}
+\begin{equation}
+y_j = \eta(x_j, \theta_0) + \epsilon_j, 
+\quad j=1,2,...,n \text{ und } \epsilon \sim N(0, \sigma^2)
+\end{equation}
+
+\section{Punktschätzer}
+\begin{equation}
+\mathbb{P} \left( \theta_L \le \theta_0 \le \theta_U \right) \geq 1-\alpha
+\end{equation}
+
+\begin{equation}
+\theta_L, \theta_U = \hat\theta \mp z_{\alpha/2}
+\sqrt{
+  V(\hat\theta)
+}
+\end{equation}
+
+\section{Konfidenzintervalle}
+\begin{equation}
+\mathbb{P} \left(
+  y_L(x) \le \eta(x, \theta_0) \le y_U(x)
+\right) \geq 1-\alpha
+\quad \forall x \in \mathbb{R}
+\end{equation}
+
+\begin{equation}
+y_L(x), y_U(x) = \eta(x, \hat\theta) \mp 
+z_{\alpha/2} 
+\sqrt{
+  \left( 
+    \frac{\partial\eta(x, \theta)}{\partial\theta} 
+  \right)_{\hat\theta}^T 
+  V(\hat\theta) 
+  \left( 
+    \frac{\partial\eta(x, \theta)}{\partial\theta} 
+  \right)_{\hat\theta}
+}
+\end{equation}
+
+\section{Konfidenzbänder}
+\begin{equation}
+\mathbb{P} \left(
+  y_L(x) \le \eta(x, \theta_0) \le y_U(x) 
+  \quad \forall x \in \mathbb{R}
+\right) \geq 1-\alpha
+\end{equation}
+
+\begin{equation}
+y_L(x), y_U(x) = \eta(x, \hat\theta) \mp 
+\sqrt{
+  \chi_p^2(a)
+  \left( 
+    \frac{\partial\eta(x, \theta)}{\partial\theta} 
+  \right)_{\hat\theta}^T 
+  V(\hat\theta) 
+  \left( 
+    \frac{\partial\eta(x, \theta)}{\partial\theta} 
+  \right)_{\hat\theta}
+}
+\end{equation}
+
+\section{Methoden ...}
+
+\section{Bootstrap}
+\begin{algorithm} 
+  \caption{Basic-Sampling Methode} 
+  \label{algo:sampling} 
+
+  \begin{algorithmic}
+  	\FOR{$j=0$ to $B$}
+      \FOR{$i=0$ to $n$} 
+		    \STATE ziehe ein Sample $y_{ij}$ von $F(.)$
+		  \ENDFOR
+			\STATE berechne die Statistik $s_j = s(y_j)$
+    \ENDFOR  
+  \end{algorithmic}
+\end{algorithm} 
+
+\begin{algorithm} 
+  \caption{Bootstrap-Sampling Methode} 
+  \label{algo:bootstrap} 
+
+  \begin{algorithmic}
+    \REQUIRE zufälliges Sample $y = (y_1, y_2, ...y_n)$ von $F(.)$
+    \STATE erstelle die EDF $F_n(.|y)$
+		\FOR{$j=0$ to $B$}
+			\FOR{$i=0$ to $n$} 
+			  \STATE ziehe ein Sample $y^*_{ij}$ von $F_n(.|y)$
+			\ENDFOR
+			\STATE berechne die Statistik $s^*_j = s(y^*_j)$
+		\ENDFOR
+		\STATE erstelle die EDF $G_n(.|s*)$ 
+  \end{algorithmic}
+\end{algorithm} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

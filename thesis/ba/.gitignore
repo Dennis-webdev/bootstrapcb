@@ -1,4 +1,15 @@
 # LaTeX
 
+*.aux
+*.log
+*.loa
+*.lof
+*.thm
+*.toc
+*.gz
+*.xml
+*.bbl
+*.bcf
+*.blg
 
 
