@@ -1,6 +1,7 @@
 # OMNeT++
 .settings/
 .qtenvrc
+.nedexclusions
 
 # Sonstiges
 notsave/
