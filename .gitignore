@@ -2,6 +2,7 @@
 .settings/
 .qtenvrc
 .nedexclusions
+.cmdenv-log
 out/
 simulations/results
 src/Makefile
@@ -11,3 +12,5 @@ src/Makefile
 
 # Sonstiges
 notsave/
+.computed/
+.Rproj.user

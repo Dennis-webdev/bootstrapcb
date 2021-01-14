@@ -123,7 +123,7 @@ simtime_t Queue::startService(Job *job)
     job->setTotalQueueingTime(job->getTotalQueueingTime() + d);
     EV << "Starting service of " << job->getName() << endl;
     job->setTimestamp();
-    return par("serviceTime").doubleValue();
+    return 1/par("serviceRate").doubleValue();
 }
 
 void Queue::endService(Job *job)

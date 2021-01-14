@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
+  <inputs>
+    <inputs name="/bootstrapcb/simulations/results/General-0.1-#0.sca"/>
+    <inputs name="/bootstrapcb/simulations/results/General-0.1-#0.vec"/>
+    <inputs name="/bootstrapcb/simulations/results/General-0.3-#0.sca"/>
+    <inputs name="/bootstrapcb/simulations/results/General-0.3-#0.vec"/>
+    <inputs name="/bootstrapcb/simulations/results/General-0.5-#0.sca"/>
+    <inputs name="/bootstrapcb/simulations/results/General-0.5-#0.vec"/>
+    <inputs name="/bootstrapcb/simulations/results/General-0.7-#0.sca"/>
+    <inputs name="/bootstrapcb/simulations/results/General-0.7-#0.vec"/>
+    <inputs name="/bootstrapcb/simulations/results/General-0.9-#0.sca"/>
+    <inputs name="/bootstrapcb/simulations/results/General-0.9-#0.vec"/>
+  </inputs>
+  <datasets>
+    <datasets name="lifeTime:vector SimpleQueue.sink">
+      <items xsi:type="scave:Add" filterPattern="module(SimpleQueue.sink) AND name(lifeTime:vector)" type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="lifeTime:vector SimpleQueue.sink"/>
+    </datasets>
+  </datasets>
+  <chartSheets/>
+</scave:Analysis>
