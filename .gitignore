@@ -2,6 +2,12 @@
 .settings/
 .qtenvrc
 .nedexclusions
+out/
+simulations/results
+src/Makefile
+*_m.h
+*_m.cc
+*_dbg
 
 # Sonstiges
 notsave/
