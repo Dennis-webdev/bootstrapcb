@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
   <inputs>
-    <inputs name="/bootstrapcb/simulations/results/General-0.1-#0.sca"/>
-    <inputs name="/bootstrapcb/simulations/results/General-0.1-#0.vec"/>
-    <inputs name="/bootstrapcb/simulations/results/General-0.3-#0.sca"/>
-    <inputs name="/bootstrapcb/simulations/results/General-0.3-#0.vec"/>
-    <inputs name="/bootstrapcb/simulations/results/General-0.5-#0.sca"/>
-    <inputs name="/bootstrapcb/simulations/results/General-0.5-#0.vec"/>
-    <inputs name="/bootstrapcb/simulations/results/General-0.7-#0.sca"/>
-    <inputs name="/bootstrapcb/simulations/results/General-0.7-#0.vec"/>
-    <inputs name="/bootstrapcb/simulations/results/General-0.9-#0.sca"/>
-    <inputs name="/bootstrapcb/simulations/results/General-0.9-#0.vec"/>
+    <inputs name="/bootstrapcb/simulations/results/General-*.vec"/>
+    <inputs name="/bootstrapcb/simulations/results/General-*.sca"/>
   </inputs>
   <datasets>
-    <datasets name="lifeTime:vector SimpleQueue.sink">
-      <items xsi:type="scave:Add" filterPattern="module(SimpleQueue.sink) AND name(lifeTime:vector)" type="VECTOR"/>
-      <items xsi:type="scave:LineChart" name="lifeTime:vector SimpleQueue.sink"/>
+    <datasets name="Test">
+      <items xsi:type="scave:Add" filterPattern="name(lifeTime:mean) OR lambda"/>
+      <items xsi:type="scave:ComputeScalar" scalarName="avgTime" valueExpr="mean('lifeTime:mean') " moduleExpr="SimpleQueue.sink" groupByExpr="" averageReplications="true" computeConfidenceInterval="true" confidenceLevel="0.95"/>
+      <items xsi:type="scave:ComputeScalar" scalarName="confInt_U" valueExpr="'avgTime' + 'avgTime:confint'" moduleExpr="SimpleQueue.sink" groupByExpr=""/>
+      <items xsi:type="scave:ComputeScalar" scalarName="confInt_L" valueExpr="'avgTime' - 'avgTime:confint'" moduleExpr="SimpleQueue.sink" groupByExpr=""/>
+      <items xsi:type="scave:ScatterChart" name="Test" xDataPattern="module(_runattrs_) AND name(lambda)">
+        <filters xsi:type="scave:Select" filterPattern="name(avgTime) OR lambda"/>
+        <filters xsi:type="scave:Select" filterPattern="name(confInt_U) OR lambda"/>
+        <filters xsi:type="scave:Select" filterPattern="name(confInt_L) OR lambda"/>
+      </items>
     </datasets>
   </datasets>
-  <chartSheets/>
+  <chartSheets>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.4"/>
+  </chartSheets>
 </scave:Analysis>
