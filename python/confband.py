@@ -91,6 +91,26 @@ def eta(x, theta):
     eta = lambda var: (theta[1] + theta[3]*var + theta[5] * var**2) * np.exp(theta[4]*(var-theta[2]))/( 1 + np.exp(theta[4]*(var-theta[2])) )
     return eval(eta, x)
 
+# Confidence Interval
+def h_ci(x, alpha, eta, theta, V):
+    errorInt = []
+    for i in range(len(x)):
+        g = lambda theta: eta(x[i], theta)
+        dg = Derivative(g, theta)
+        h = 1.96 * np.sqrt( dg.T @ V @ dg ) # TODO Quantile
+        errorInt.append(h)
+    return errorInt
+
+# Confidence Band
+def h_cb(x, alpha, eta, theta, V):
+    errorInt = []
+    for i in range(len(x)):
+        g = lambda theta: eta(x[i], theta)
+        dg = Derivative(g, theta)
+        h = 1.645 * np.sqrt( dg.T @ V @ dg ) # TODO Quantile
+        errorInt.append(h)
+    return errorInt
+
 # PDF functions
 def y_sample(eta, x, theta): 
     y = lambda var: eta(var, theta) + np.random.normal(0, theta[0])
@@ -100,9 +120,11 @@ def pdf(y, eta, x, theta):
     pdf = lambda var: np.exp( -(var - eta(x, theta))**2 / (2 * theta[0]**2) ) / (theta[0] * np.sqrt(2 * np.pi))
     return eval(pdf, y)
 
+# def cdf(y, eta, x, theta): # TODO
+
 # y = np.linspace(-40, 40, num=100)
-# test = lambda y: pdf(y, eta, xs[0], [153.79, 17.26, -2.58, 0.455, 0.01746], 10.17)
-# test_s = [ y_sample(eta, xs[0], [153.79, 17.26, -2.58, 0.455, 0.01746], 10.17) for _ in range(1000) ]
+# test = lambda y: pdf(y, eta, xs[0], [10.17, 153.79, 17.26, -2.58, 0.455, 0.01746])
+# test_s = [ y_sample(eta, xs[0], [10.17, 153.79, 17.26, -2.58, 0.455, 0.01746]) for _ in range(1000) ]
 # plt.plot(y, test(y))
 # plt.hist(test_s, density=True)
 # plt.show()
@@ -119,27 +141,38 @@ def L_sum(theta, eta, x, y):
     return np.sum( np.log( [pdf(y[i], eta, x[i], theta) for i in range(len(x))] ) )
     # return np.sum( [np.log(pdf(y[i], x, theta)) for i in range(len(y))] ) 
 
+def maximum(f, x0=0, h=0.001, max=100):
+    count = 0
+    df = derivative(f, x0, 1, h)
+    while count<max and np.abs(df)>h:
+        df = derivative(f, x0, 1, h)
+        ddf = derivative(f, x0, 2, h)
+        x0 = x0 - df/ddf
+    return x0
+
 # MLE estimation
-# theta=[153.79, 17.26, -2.58, 0.455, 0.01746], sigma=10.17
-# theta=[153.79, 17.26, -2.58, 0.455, 0.01746], sigma=3.189 sqrt() besser
 logLikelyhood = lambda theta: L(theta, eta, x_i, y_i)
-sigma=3.189 # TODO
-theta=[sigma, 153.79, 17.26, -2.58, 0.455, 0.01746] # TODO
+# TODO theta=[153.79, 17.26, -2.58, 0.455, 0.01746], sigma=3.189, sigma^2=10.17 
+theta_0=[10.17, 153.79, 17.26, -2.58, 0.455, 0.01746]
+theta = theta_0# []
+# for i in range(len(theta_0)):
+#     llh_i = lambda var: logLikelyhood( replace(theta_0, i, var) ) 
+#     theta.append(maximum(llh_i, theta_0[i]))
 V = np.linalg.inv( -Hessian(logLikelyhood, theta) ) # TODO inverting algorithm
 
-# Confidence Interval
-def h(x, eta, theta, V):
-    errorInt = []
-    for i in range(len(x)):
-        g = lambda theta: eta(x[i], theta)
-        dg = Derivative(g, theta)
-        h = (2*theta[0]) * np.sqrt( dg.T @ V @ dg )
-        errorInt.append(h)
-    return errorInt
+# y = np.linspace(9, 13, num=100)
+# test = lambda i: logLikelyhood([i, 153.79, 17.26, -2.58, 0.455, 0.01746])# [10.17, 153.79, 17.26, -2.58, 0.455, 0.01746]
+# plt.plot(y, [ test(y[i]) for i in range(len(y)) ])
+# # plt.plot(y, [ derivative(test, y[i]) for i in range(len(y)) ])
+# plt.show()
+# print(Derivative(logLikelyhood, [10.17, 153.79, 17.26, -2.58, 0.455, 0.01746]))
 
-h = h(x, eta, theta, V)
+h_ci = h_ci(x, 0.1, eta, theta, V)
+h_cb = h_cb(x, 0.1, eta, theta, V)
 plt.plot(xs, data, 'o', color='black', markersize='3')
 plt.plot(x, eta(x, theta))
-plt.plot(x, [eta(x[i], theta) - h[i] for i in range(len(x))], linestyle='dashed')
-plt.plot(x, [eta(x[i], theta) + h[i] for i in range(len(x))], linestyle='dashed')
+plt.plot(x, [eta(x[i], theta) - h_ci[i] for i in range(len(x))], linestyle='dashed')
+plt.plot(x, [eta(x[i], theta) + h_ci[i] for i in range(len(x))], linestyle='dashed')
+# plt.plot(x, [eta(x[i], theta) - h_cb[i] for i in range(len(x))], linestyle='dashed')
+# plt.plot(x, [eta(x[i], theta) + h_cb[i] for i in range(len(x))], linestyle='dashed')
 plt.show()
