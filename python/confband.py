@@ -12,6 +12,12 @@ data = [ [ 1.26,   2.78,  0.63,  0.34],
          [55.98,  67.28, 79.33, 82.66],
          [66.32,  78.53,  69.1, 67.27], 
          [37.42,  55.35, 60.76,  73.2] ]
+x_i = []
+y_i = []
+for i in range(len(xs)):
+    for j in range(len(data[i])):
+        x_i.append(xs[i])
+        y_i.append(data[i][j])
 
 # Utilities
 def isiterable(obj):
@@ -80,49 +86,60 @@ def Hessian(f, vec, h=0.001):
 # test = lambda x: x[1]*x[0]**2 + x[1]**2 + x[2]**2
 # print(Hessian(test, [3,2,10]))
 
-# Model functions
-def eta(x, theta=[153.79, 17.26, -2.58, 0.455, 0.01746]): 
-    f = lambda var: (theta[0] + theta[2]*var + theta[4]*var**2) * np.exp(theta[3]*(var-theta[1]))/( 1 + np.exp(theta[3]*(var-theta[1])) )
-    return eval(f, x)
+# Model function
+def eta(x, theta): 
+    eta = lambda var: (theta[1] + theta[3]*var + theta[5] * var**2) * np.exp(theta[4]*(var-theta[2]))/( 1 + np.exp(theta[4]*(var-theta[2])) )
+    return eval(eta, x)
 
-def y(x, theta=[153.79, 17.26, -2.58, 0.455, 0.01746], sigma=10.17): 
-    f = lambda var: eta(var, theta) + np.random.normal(0, sigma**2)
-    return eval(f, x)
+# PDF functions
+def y_sample(eta, x, theta): 
+    y = lambda var: eta(var, theta) + np.random.normal(0, theta[0])
+    return eval(y, x)
 
-def pdf(y, x, theta=[153.79, 17.26, -2.58, 0.455, 0.01746], sigma=10.17):
-    f = lambda var: np.exp( -(var - eta(x, theta))**2 / (2*sigma**2) ) / np.sqrt(2*np.pi*sigma**2)
-    return eval(f, y)
+def pdf(y, eta, x, theta):
+    pdf = lambda var: np.exp( -(var - eta(x, theta))**2 / (2 * theta[0]**2) ) / (theta[0] * np.sqrt(2 * np.pi))
+    return eval(pdf, y)
 
-# def g(theta, x):
-#     return eta(x, theta)
+# y = np.linspace(-40, 40, num=100)
+# test = lambda y: pdf(y, eta, xs[0], [153.79, 17.26, -2.58, 0.455, 0.01746], 10.17)
+# test_s = [ y_sample(eta, xs[0], [153.79, 17.26, -2.58, 0.455, 0.01746], 10.17) for _ in range(1000) ]
+# plt.plot(y, test(y))
+# plt.hist(test_s, density=True)
+# plt.show()
 
-def Lik(theta, x, y):
-    return np.prod( pdf(y, x, theta) )
+# Likelyhood functions
+def Lik(theta, eta, x, y):
+    return np.prod( [pdf(y[i], eta, x[i], theta) for i in range(len(x))] )
     # return np.prod( [pdf(y[i], x, theta) for i in range(len(y))] )
 
-def L(theta, x, y):
-    return np.log( Lik(theta, x, y) )
+def L(theta, eta, x, y):
+    return np.log( Lik(theta, eta, x, y) )
 
-def L_sum(theta, x, y):
-    return np.sum( np.log( pdf(y, x, theta) ) )
+def L_sum(theta, eta, x, y):
+    return np.sum( np.log( [pdf(y[i], eta, x[i], theta) for i in range(len(x))] ) )
     # return np.sum( [np.log(pdf(y[i], x, theta)) for i in range(len(y))] ) 
 
-def h(x, data, theta=[153.79, 17.26, -2.58, 0.455, 0.01746], sigma=10.17):
+# MLE estimation
+# theta=[153.79, 17.26, -2.58, 0.455, 0.01746], sigma=10.17
+# theta=[153.79, 17.26, -2.58, 0.455, 0.01746], sigma=3.189 sqrt() besser
+logLikelyhood = lambda theta: L(theta, eta, x_i, y_i)
+sigma=3.189 # TODO
+theta=[sigma, 153.79, 17.26, -2.58, 0.455, 0.01746] # TODO
+V = np.linalg.inv( -Hessian(logLikelyhood, theta) ) # TODO inverting algorithm
+
+# Confidence Interval
+def h(x, eta, theta, V):
     errorInt = []
     for i in range(len(x)):
-        logLikelyhood = lambda theta: L(theta, x[i], data[i])
-        # TODO max logLikelyhood
-        V = np.linalg.inv( -Hessian(logLikelyhood, theta) )
         g = lambda theta: eta(x[i], theta)
         dg = Derivative(g, theta)
-        h = (2*sigma) * np.sqrt( dg.T @ V @ dg )
+        h = (2*theta[0]) * np.sqrt( dg.T @ V @ dg )
         errorInt.append(h)
     return errorInt
-         
-h = h(xs, data)
-print(h)
+
+h = h(x, eta, theta, V)
 plt.plot(xs, data, 'o', color='black', markersize='3')
-plt.plot(x, eta(x))
-plt.plot(xs, [eta(xs[i]) - h[i] for i in range(len(xs))], linestyle='dashed')
-plt.plot(xs, [eta(xs[i]) + h[i] for i in range(len(xs))], linestyle='dashed')
+plt.plot(x, eta(x, theta))
+plt.plot(x, [eta(x[i], theta) - h[i] for i in range(len(x))], linestyle='dashed')
+plt.plot(x, [eta(x[i], theta) + h[i] for i in range(len(x))], linestyle='dashed')
 plt.show()
