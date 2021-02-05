@@ -11,6 +11,10 @@ src/Makefile
 bootstrapcb_dbg
 bootstrapcb
 
+# Python
+__pycache__
+*.pyc
+
 # Sonstiges
 notsave/
 .computed/
