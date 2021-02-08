@@ -65,7 +65,7 @@ def native_ci(x, q, f, opt, V):
     confInt = []
     for i in range(len(x)):
         dg = gradient(lambda var: f(x[i], var))
-        h = 1.96 * np.sqrt( dg(opt).T @ V @ dg(opt) ) # TODO Quantile
+        h = 1.7 * np.sqrt( dg(opt).T @ V @ dg(opt) ) # TODO Quantile
         confInt.append(h)
     return confInt
 
@@ -74,59 +74,39 @@ def native_cb(x, q, f, opt, V, I):
     confBand = []
     for i in range(len(x)):
         dg = gradient(lambda var: f(x[i], var))
-        h = np.sqrt(10.64) * np.sqrt( dg(opt).T @ V @ dg(opt) ) # TODO Quantile
+        h = np.sqrt(9.9) * np.sqrt( dg(opt).T @ V @ dg(opt) ) # TODO Quantile
         confBand.append(h)
     return confBand
 
-# Confidence band
-def bootstrap_cb(x, q, f, opt, V, I, n=20, B=50):
-    y_sample = lambda var: f(var, opt) + np.random.normal(0, opt[0])
-    C = []
-    theta = []
-    # Calculate C samples
-    for _ in range(B):
-        xs_sample = np.random.choice(x, n)
-        ys_sample = [y_sample(x_i) for x_i in xs_sample]
-        theta_sample = mle(f, xs_sample, ys_sample, opt)
-        theta_diff = np.subtract(theta_sample, opt)
-        C_sample = theta_diff.T @ I @ theta_diff 
-        C.append( C_sample )
-        theta.append( theta_sample )
-    # Sort C and corresponding theta
-    for i in range(len(C)):
-        for j in range(i+1,len(C)):
-            if C[j] < C[i]: 
-                tmpC = C[i] 
-                C[i] = C[j]
-                C[j] = tmpC
-                tmpTheta = theta[i]
-                theta[i] = theta[j]
-                theta[j] = tmpTheta
-    chi_square = quantile(C, q) # chi_square = 10.64
-    theta = [theta[i] for i in range(len(theta)) if C[i] < 10.64]    
-    # maximize and minimize the value of f
-    confBand_L, confBand_U = [None]*len(x), [None]*len(x)
-    for theta_sample in theta:
-        for i in range(len(x)):
-            fx = f(x[i], theta_sample)
-            if confBand_L[i] is None or fx < confBand_L[i]: 
-                confBand_L[i] = fx
-            if confBand_U[i] is None or fx > confBand_U[i]: 
-                confBand_U[i] = fx
-    return confBand_L, confBand_U
-
 # # Confidence band
-# def bootstrap_cb(x, q, f, opt, V, I, n=50, B=100):
-#     L = cholesky(V)
-#     confBand_L, confBand_U = [None]*len(x), [None]*len(x)
+# def bootstrap_cb(x, q, f, opt, V, I, n=20, B=50):
+#     y_sample = lambda var: f(var, opt) + np.random.normal(0, opt[0])
+#     C = []
+#     theta = []
+#     # Calculate C samples
 #     for _ in range(B):
-#         # obtain a point of theta on the edge of the confidence region
-#         z = np.random.normal(0, 1, len(opt))
-#         z_sum = np.sum([z[j]**2 for j in range(len(z))])
-#         Z = [5.2 * z[i]**2 / z_sum for i in range(len(z))]
-#         W = L @ Z
-#         theta_sample = np.add(W, opt)
-#         test = W.T @ I @ W 
+#         xs_sample = np.random.choice(x, n)
+#         ys_sample = [y_sample(x_i) for x_i in xs_sample]
+#         theta_sample = mle(f, xs_sample, ys_sample, opt)
+#         theta_diff = np.subtract(theta_sample, opt)
+#         C_sample = theta_diff.T @ I @ theta_diff 
+#         C.append( C_sample )
+#         theta.append( theta_sample )
+#     # Sort C and corresponding theta
+#     for i in range(len(C)):
+#         for j in range(i+1,len(C)):
+#             if C[j] < C[i]: 
+#                 tmpC = C[i] 
+#                 C[i] = C[j]
+#                 C[j] = tmpC
+#                 tmpTheta = theta[i]
+#                 theta[i] = theta[j]
+#                 theta[j] = tmpTheta
+#     chi_square = quantile(C, q) # chi_square = 10.64
+#     theta = [theta[i] for i in range(len(theta)) if C[i] < 10.64]    
+#     # maximize and minimize the value of f
+#     confBand_L, confBand_U = [None]*len(x), [None]*len(x)
+#     for theta_sample in theta:
 #         for i in range(len(x)):
 #             fx = f(x[i], theta_sample)
 #             if confBand_L[i] is None or fx < confBand_L[i]: 
@@ -134,6 +114,28 @@ def bootstrap_cb(x, q, f, opt, V, I, n=20, B=50):
 #             if confBand_U[i] is None or fx > confBand_U[i]: 
 #                 confBand_U[i] = fx
 #     return confBand_L, confBand_U
+
+# Confidence band
+def bootstrap_cb(x, q, f, opt, V, I, n=500, B=1000):
+    L = cholesky(V)
+    p = len(opt)
+    confBand_L, confBand_U = [None]*len(x), [None]*len(x)
+    for _ in range(1000):
+        # obtain a point of theta on the edge of the confidence region
+        z = np.random.normal(0, 1, p)
+        z_sum = np.sum([z[j]**2 for j in range(p)])
+        z_sum = np.sqrt(z_sum)
+        Z = [np.sqrt(10.64) * z[i] / z_sum for i in range(p)]
+        W = L @ Z
+        theta_sample = np.add(W, opt)
+        # maximize and minimize the value of f
+        for i in range(len(x)):
+            fx = f(x[i], theta_sample)
+            if confBand_L[i] is None or fx < confBand_L[i]: 
+                confBand_L[i] = fx
+            if confBand_U[i] is None or fx > confBand_U[i]: 
+                confBand_U[i] = fx
+    return confBand_L, confBand_U
 
 # Confidence band
 def full_bootstrap_cb(x, q, f, opt, V, I, n=100, B=50):
@@ -173,12 +175,12 @@ avg = [eta(x[i], opt) for i in range(len(x))]
 ########## Bootstrap Confidence ##########
 plt.plot(xs, data, 'o', color='black', markersize='3')
 plt.plot(x, avg)
-h_ci = native_ci(x, 90, eta, opt, V)
-plt.plot(x, [avg[i] - h_ci[i]   for i in range(len(x))], color='green',   linestyle='dashed')
-plt.plot(x, [avg[i] + h_ci[i]   for i in range(len(x))], color='green',   linestyle='dashed')
-h_cb = native_cb(x, 90, eta, opt, V, I)
-plt.plot(x, [avg[i] - h_cb[i]   for i in range(len(x))], color='blue',   linestyle='dashed')
-plt.plot(x, [avg[i] + h_cb[i]   for i in range(len(x))], color='blue',   linestyle='dashed')
+# h_ci = native_ci(x, 90, eta, opt, V)
+# plt.plot(x, [avg[i] - h_ci[i]   for i in range(len(x))], color='green',   linestyle='dashed')
+# plt.plot(x, [avg[i] + h_ci[i]   for i in range(len(x))], color='green',   linestyle='dashed')
+# h_cb = native_cb(x, 90, eta, opt, V, I)
+# plt.plot(x, [avg[i] - h_cb[i]   for i in range(len(x))], color='blue',   linestyle='dashed')
+# plt.plot(x, [avg[i] + h_cb[i]   for i in range(len(x))], color='blue',   linestyle='dashed')
 y_L_bscb, y_U_bscb = bootstrap_cb(x, 90, eta, opt, V, I)
 plt.plot(x, y_L_bscb, color='red', linestyle='dashed')
 plt.plot(x, y_U_bscb, color='red', linestyle='dashed')
