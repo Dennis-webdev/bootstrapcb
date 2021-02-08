@@ -1,4 +1,3 @@
-from re import T
 import numpy as np
 import pandas as pd
 import numdifftools as nd
@@ -24,15 +23,17 @@ for i in range(len(xs)):
 def inv(A):
     return np.linalg.inv(A) 
 
-def Gradient(f):
+def cholesky(A):
+    return np.linalg.cholesky(A)
+
+def gradient(f):
     return nd.Gradient(f) 
 
-def Hessian(f):
+def hessian(f):
     return nd.Hessian(f) 
 
 def quantile(arr, q):
-    arr_sorted = np.sort(arr)
-    return np.percentile(arr_sorted, q)
+    return np.percentile(arr, q)
 
 #Maximum likelyhood estimation
 def mle(f, xs, ys, p0, info=False):
@@ -54,7 +55,7 @@ def mle(f, xs, ys, p0, info=False):
     
     opt = _maximize()
     if info:
-        I = -Hessian(lambda var: _L(var, xs, ys))(opt)
+        I = -hessian(lambda var: _L(var, xs, ys))(opt)
         V = inv(I) 
         return opt, V, I
     return opt
@@ -63,7 +64,7 @@ def mle(f, xs, ys, p0, info=False):
 def native_ci(x, q, f, opt, V):
     confInt = []
     for i in range(len(x)):
-        dg = Gradient(lambda var: f(x[i], var))
+        dg = gradient(lambda var: f(x[i], var))
         h = 1.96 * np.sqrt( dg(opt).T @ V @ dg(opt) ) # TODO Quantile
         confInt.append(h)
     return confInt
@@ -72,30 +73,67 @@ def native_ci(x, q, f, opt, V):
 def native_cb(x, q, f, opt, V, I):
     confBand = []
     for i in range(len(x)):
-        dg = Gradient(lambda var: f(x[i], var))
+        dg = gradient(lambda var: f(x[i], var))
         h = np.sqrt(10.64) * np.sqrt( dg(opt).T @ V @ dg(opt) ) # TODO Quantile
         confBand.append(h)
     return confBand
 
 # Confidence band
-def bootstrap_cb(x, q, f, opt, V, I, n=100, B=50):
+def bootstrap_cb(x, q, f, opt, V, I, n=20, B=50):
     y_sample = lambda var: f(var, opt) + np.random.normal(0, opt[0])
-
-    sampleC = []
+    C = []
+    theta = []
+    # Calculate C samples
     for _ in range(B):
         xs_sample = np.random.choice(x, n)
         ys_sample = [y_sample(x_i) for x_i in xs_sample]
         theta_sample = mle(f, xs_sample, ys_sample, opt)
         theta_diff = np.subtract(theta_sample, opt)
-        sampleC.append( theta_diff.T @ I @ theta_diff )
-    chi_square = quantile(sampleC, q)
+        C_sample = theta_diff.T @ I @ theta_diff 
+        C.append( C_sample )
+        theta.append( theta_sample )
+    # Sort C and corresponding theta
+    for i in range(len(C)):
+        for j in range(i+1,len(C)):
+            if C[j] < C[i]: 
+                tmpC = C[i] 
+                C[i] = C[j]
+                C[j] = tmpC
+                tmpTheta = theta[i]
+                theta[i] = theta[j]
+                theta[j] = tmpTheta
+    chi_square = quantile(C, q) # chi_square = 10.64
+    theta = [theta[i] for i in range(len(theta)) if C[i] < 10.64]    
+    # maximize and minimize the value of f
+    confBand_L, confBand_U = [None]*len(x), [None]*len(x)
+    for theta_sample in theta:
+        for i in range(len(x)):
+            fx = f(x[i], theta_sample)
+            if confBand_L[i] is None or fx < confBand_L[i]: 
+                confBand_L[i] = fx
+            if confBand_U[i] is None or fx > confBand_U[i]: 
+                confBand_U[i] = fx
+    return confBand_L, confBand_U
 
-    confBand = []
-    for i in range(len(x)):
-        dg = Gradient(lambda var: f(x[i], var))
-        h = np.sqrt(chi_square) * np.sqrt( dg(opt).T @ V @ dg(opt) ) # TODO Quantile
-        confBand.append(h)
-    return confBand
+# # Confidence band
+# def bootstrap_cb(x, q, f, opt, V, I, n=50, B=100):
+#     L = cholesky(V)
+#     confBand_L, confBand_U = [None]*len(x), [None]*len(x)
+#     for _ in range(B):
+#         # obtain a point of theta on the edge of the confidence region
+#         z = np.random.normal(0, 1, len(opt))
+#         z_sum = np.sum([z[j]**2 for j in range(len(z))])
+#         Z = [5.2 * z[i]**2 / z_sum for i in range(len(z))]
+#         W = L @ Z
+#         theta_sample = np.add(W, opt)
+#         test = W.T @ I @ W 
+#         for i in range(len(x)):
+#             fx = f(x[i], theta_sample)
+#             if confBand_L[i] is None or fx < confBand_L[i]: 
+#                 confBand_L[i] = fx
+#             if confBand_U[i] is None or fx > confBand_U[i]: 
+#                 confBand_U[i] = fx
+#     return confBand_L, confBand_U
 
 # Confidence band
 def full_bootstrap_cb(x, q, f, opt, V, I, n=100, B=50):
@@ -112,7 +150,7 @@ def full_bootstrap_cb(x, q, f, opt, V, I, n=100, B=50):
 
     confBand = []
     for i in range(len(x)):
-        dg = Gradient(lambda var: f(x[i], var))
+        dg = gradient(lambda var: f(x[i], var))
         h = np.sqrt(chi_square) * np.sqrt( dg(opt).T @ V @ dg(opt) ) # TODO Quantile
         confBand.append(h)
     return confBand
@@ -135,13 +173,19 @@ avg = [eta(x[i], opt) for i in range(len(x))]
 ########## Bootstrap Confidence ##########
 plt.plot(xs, data, 'o', color='black', markersize='3')
 plt.plot(x, avg)
-h_bscb = bootstrap_cb(x, 90, eta, opt, V, I)
-plt.plot(x, [avg[i] - h_bscb[i] for i in range(len(x))], color='red', linestyle='dashed')
-plt.plot(x, [avg[i] + h_bscb[i] for i in range(len(x))], color='red', linestyle='dashed')
+h_ci = native_ci(x, 90, eta, opt, V)
+plt.plot(x, [avg[i] - h_ci[i]   for i in range(len(x))], color='green',   linestyle='dashed')
+plt.plot(x, [avg[i] + h_ci[i]   for i in range(len(x))], color='green',   linestyle='dashed')
+h_cb = native_cb(x, 90, eta, opt, V, I)
+plt.plot(x, [avg[i] - h_cb[i]   for i in range(len(x))], color='blue',   linestyle='dashed')
+plt.plot(x, [avg[i] + h_cb[i]   for i in range(len(x))], color='blue',   linestyle='dashed')
+y_L_bscb, y_U_bscb = bootstrap_cb(x, 90, eta, opt, V, I)
+plt.plot(x, y_L_bscb, color='red', linestyle='dashed')
+plt.plot(x, y_U_bscb, color='red', linestyle='dashed')
 plt.show()
 
 ###############################
-#     return nd.Gradient(lambda var: Lik(var, y))(theta)
+#     return nd.gradient(lambda var: Lik(var, y))(theta)
 # oder
 #     gradient=[]
 #     for j in range(len(theta)):
