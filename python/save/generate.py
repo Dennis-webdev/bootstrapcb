@@ -87,6 +87,6 @@ dict = {
     'Y': Y,
     'Theta': Theta,
 }
-f = open("dict.txt","w")
+f = open("python/dict.txt","w")
 f.write( str(dict) )
 f.close()

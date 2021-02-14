@@ -15,7 +15,7 @@ def w(x, theta):
 def quantile(q, T):
     return np.percentile(T, q)
 
-f = open("dict_musigma_1000_nonparam.txt")
+f = open("python/dict_musigma_1000_nonparam.txt")
 dict = f.read()
 dict = eval(dict)
 opt = dict['opt']
