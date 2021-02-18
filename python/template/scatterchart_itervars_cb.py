@@ -4,14 +4,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from omnetpp.scave import results, chart, utils, plot, vectorops as ops
 
+#########################################################################
+import sys
+from IPython.utils import strdispatch
+sys.path.append('/home/dennis/git/bootstrapcb/python')
+import bootstrapcb as cb
+#########################################################################
+
 # get chart properties
 props = chart.get_properties()
 utils.preconfigure_plot(props)
 
-# collect parameters for query
+# collect parameters for query 
 filter_expression = props["filter"]
 xaxis_itervar = props["xaxis_itervar"]
-iso_itervar = props["iso_itervar"]
+iso_itervar = props["iso_itervar"] 
 
 # query data into a data frame
 df = results.get_scalars(filter_expression, include_runattrs=True, include_attrs=True, include_itervars=True)
@@ -53,13 +60,60 @@ confidence_level_str = props["confidence_level"] if "confidence_level" in props 
 
 if confidence_level_str == "none":
     df = pd.pivot_table(df, values="value", columns=iso_itervar, index=xaxis_itervar)
-    errors_df = None
 else:
-    confidence_level = float(confidence_level_str[:-1])/100
-    conf_band = lambda values: utils.confidence_interval(confidence_level, values) if len(values) > 1 else math.nan
-    pivoted = pd.pivot_table(df, values="value", columns=iso_itervar, index=xaxis_itervar, aggfunc=[np.mean, conf_int], dropna=False)
-    df = pivoted["mean"]
-    errors_df = pivoted["<lambda>"]
+    confidence_level = float(confidence_level_str[:-1])
+    method_str = props["method"]
+    p0 = eval(props["p0"])
+    f_str = props["model_func"]
+    pdf_str = props["pdf"] if "pdf" in props else "none"
+    cdf_str = props["cdf"] if "cdf" in props else "none"
+    if f_str: 
+        code = f_str.split("\n")
+        parsed_code = "def f(x,theta):\n"
+        for line in code: parsed_code += "  "+line+"\n"
+        exec(parsed_code)
+    if pdf_str: 
+        code = pdf_str.split("\n")
+        parsed_code = "def pdf(x,y,theta):\n"
+        for line in code: parsed_code += "  "+line+"\n"
+        exec(parsed_code)
+    if cdf_str: 
+        code = cdf_str.split("\n")
+        parsed_code = "def cdf(x,y,theta):\n"
+        for line in code: parsed_code += "  "+line+"\n"
+        exec(parsed_code)
+    #xs = df[xaxis_itervar].values
+    #ys = df["value"].values
+    #x = np.linspace(xs[0],xs[-1],num=100)
+#########################################################################
+    xs = [0]*47 
+    ys = [  4.3, 4.7, 4.7, 3.1, 5.2, 6.7, 4.5, 3.6, 7.2, 10.9,  6.6, 5.8,
+            6.3, 4.7, 8.2, 6.2, 4.2, 4.1, 3.3, 4.6, 6.3,  4.0,  3.1, 3.5,
+            7.8, 5.0, 5.7, 5.8, 6.4, 5.2, 8.0, 4.9, 6.1,  8.0,  7.7, 4.3,
+           12.5, 7.9, 3.9, 4.0, 4.4, 6.7, 3.8, 6.4, 7.2,  4.8, 10.5       ]
+    x = np.linspace(0,0.1,num=100)
+#########################################################################
+    opt, V, I = cb.mle(xs, ys, pdf, p0, info=True) 
+    mean = [f(x_i, opt) for x_i in x] 
+    df = pd.DataFrame(data={ 
+        "x": x, 
+        "mean": mean  
+    }) 
+    df = df.set_index(["x"])  
+    if method_str == "Pointwise delta-method":
+        conf_l, conf_u = cb.conf_band_delta(x, confidence_level, f, opt, V)
+    elif method_str == "Simultaneous delta-method":
+        conf_l, conf_u = cb.conf_band_delta(x, confidence_level, f, opt, V)
+    elif method_str == "Simultaneous delta-method (bootstrapped)":
+        conf_l, conf_u = cb.conf_band_delta(x, confidence_level, f, opt, V)
+    elif method_str == "Bootstrap likelihood-based region R_alpha":
+        conf_l, conf_u = cb.conf_band_delta(x, confidence_level, f, opt, V)
+    elif method_str == "Bootstrap likelihood-based region dR_alpha":
+        conf_l, conf_u = cb.conf_band_delta(x, confidence_level, f, opt, V)
+    elif method_str == "Bootstrap likelihood-based region dR_alpha (nelder-mead)":
+        conf_l, conf_u = cb.conf_band_delta(x, confidence_level, f, opt, V)
+    df["cb_l"] = conf_l 
+    df["cb_u"] = conf_u       
 
 legend_cols, _ = utils.extract_label_columns(df)
 
@@ -79,15 +133,6 @@ for c in df.columns:
     style = utils._make_line_args(props, c, df)
     ys = df[c].values
     p.plot(xs, ys, label=(iso_itervar + "=" + str(df[c].name) if iso_itervar else scalar_name), **style)
-
-    if errors_df is not None and not chart.is_native_chart():
-        style["linewidth"] = float(style["linewidth"])
-        style["linestyle"] = "none"
-        yerr = errors_df[c].values
-        if props["error_style"] == "Error bars":
-            p.errorbar(xs, ys, yerr=yerr, capsize=float(props["cap_size"]), **style)
-        elif props["error_style"] == "Error band":
-            plt.fill_between(xs, ys-yerr, ys+yerr, alpha=float(props["band_alpha"]))
 
 utils.set_plot_title(scalar_name + " vs. " + xaxis_itervar)
 
