@@ -34,19 +34,16 @@ def f(x, theta):
 p0 = [10.17, 153.79, 17.26, -2.58, 0.455, 0.01746]
 pdf = lambda x,y,theta: np.exp(-(y-f(x,theta))**2 / (2*theta[0]**2)) / np.sqrt(2*np.pi*theta[0]**2)
     
-opt, V, I = cb.mle(xs, ys, pdf, p0, info=True) 
-mean = [f(x_i, opt) for x_i in x] 
+# get class instance
+bscb = cb.cb_class(xdata, ydata, f, p0)  
+# MLE 
+mean, V = bscb.mle(x) 
 df = pd.DataFrame(data={ 
     "x": x, 
     "mean": mean  
 }) 
 df = df.set_index(["x"])
 
-x_samples, y_samples, theta_samples = cb.generate_y_param(xdata, ydata, pdf, opt, B=10, n=50)
-for theta in theta_samples:
-    plt.plot(x, [f(x_i, theta) for x_i in x])
-plt.show()
-
-conf_l, conf_u = cb.conf_band_bs_ralpha(x, confidence_level, f, opt, I, theta_samples)
+conf_l, conf_u = bscb.conf_band_bs_dralpha(x, confidence_level)
 df["cb_l"] = conf_l  
 df["cb_u"] = conf_u  

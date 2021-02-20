@@ -13,7 +13,7 @@ from IPython.utils import strdispatch
 from cProfile import label
 from _ast import If
 sys.path.append('/home/dennis/git/bootstrapcb/python')
-import bootstrapcb as cb  
+import bootstrapcb
 #########################################################################
 
 # get chart properties
