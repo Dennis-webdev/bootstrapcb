@@ -1,4 +1,5 @@
 import math
+import sys
 import numpy as np
 import pandas as pd
 import numdifftools as nd
@@ -6,7 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 from scipy.optimize import root
 from scipy.integrate import quad
- 
+
 def mle(x, y, pdf, guess, info=False):
     def _L(theta,x,y):
         return np.sum( [np.log(pdf(x[i],y[i],theta)) for i in range(len(x))] )
@@ -17,7 +18,7 @@ def mle(x, y, pdf, guess, info=False):
         return opt, V, I
     return opt
 
-def generate_y_nonparam(x, y, pdf, opt, B=1000, n=50):
+def generate_y_nonparam(x, y, pdf, opt, B=100, n=50):
     def _generate_y(y,r):
         sortedY = y.copy()
         n = len(sortedY)
@@ -37,45 +38,49 @@ def generate_y_nonparam(x, y, pdf, opt, B=1000, n=50):
     X = []
     Y = []
     Theta = []
-    for _ in range(B):
+    for i in range(B):
         x_sample = []
         y_sample = []
         for _ in range(n): 
             r = np.random.uniform(0, 1)
-            i = np.random.choice(range(len(x)))
-            x_sample.append(x[i])
-            y_sample.append(_generate_y(y[i],r))
+            index = np.random.choice(range(len(x)))
+            x_sample.append(x[index])
+            y_sample.append(_generate_y(y[index],r))
+        theta_sample = mle(x_sample, y_sample, pdf, opt)
         X.append(x_sample)
         Y.append(y_sample)
-    for i in range(B):
-        theta_sample = mle(X[i], Y[i], pdf, opt)
         Theta.append(theta_sample)
+        print("Generate bootstrap samples: {0}%".format( int(100*(i+1)/B) ), end="\r")
     return X, Y, Theta
 
-def generate_y_param(x, y, pdf, opt, B=1000, n=50):  
+def generate_y_param(x, y, pdf, opt, B=100, n=50):  
     def _cdf(x, y, theta):
         try:
             value, error = quad(lambda var: pdf(x,var,theta), -np.inf, y)
             return value
-        except: return 0
+        except: 
+            print("pdf integration failed")
+            return 0
     def _generate_y(x,r,y0):
-        return root(lambda var: (_cdf(x,var,opt)-r), y0).x[0]
+        value = root(lambda var: (_cdf(x,var,opt)-r), y0) 
+        return value.x[0]
     X = []
     Y = []
     Theta = []
-    for _ in range(B):
+    for i in range(B):
         x_sample = []
         y_sample = []
         for _ in range(n): 
             r = np.random.uniform(0, 1)
-            i = np.random.choice(range(len(x)))
-            x_sample.append(x[i])
-            y_sample.append(_generate_y(x[i],r,y[i]))
+            index = np.random.choice(range(len(x)))
+            y0 = np.sum(y[index]) / len(y[index])
+            x_sample.append(x[index])
+            y_sample.append(_generate_y(x[index],r,y0))
+        theta_sample = mle(x_sample, y_sample, pdf, opt)
         X.append(x_sample)
         Y.append(y_sample)
-    for i in range(B):
-        theta_sample = mle(X[i], Y[i], pdf, opt)
         Theta.append(theta_sample)
+        print("Generate bootstrap samples: {0}%".format( int(100*(i+1)/B) ), end="\r")
     return X, Y, Theta
 
 def conf_band_delta(x, q, f, opt, V):
@@ -86,6 +91,36 @@ def conf_band_delta(x, q, f, opt, V):
         mean[i] = f(x[i], opt)
         confBand_L[i] = mean[i] - h
         confBand_U[i] = mean[i] + h
+    return confBand_L, confBand_U
+
+def conf_band_bs_ralpha(x, q, f, opt, I, theta_samples):
+    B = len(theta_samples)
+    # jth GoF test statistic
+    C = []
+    for theta in theta_samples:
+        c_sample = np.subtract(opt, theta).T @ I @ np.subtract(opt, theta)
+        C.append(c_sample)
+    # order test values
+    for i in range(B):
+        for j in range(i+1,B):
+            if C[j] > C[i]: 
+                tmpC = C[i] 
+                C[i] = C[j]
+                C[j] = tmpC
+                tmpTheta = theta_samples[i] 
+                theta_samples[i] = theta_samples[j]
+                theta_samples[j] = tmpTheta
+    # rounded integer subscript
+    c_critval = np.percentile(C, q) 
+    R_alpha = [theta_samples[i] for i in range(B) if C[i] < c_critval]
+    confBand_L, confBand_U = [None]*len(x), [None]*len(x)
+    for theta in R_alpha:
+        for i in range(len(x)):
+            fx = f(x[i], theta)
+            if confBand_L[i] is None or fx < confBand_L[i]: 
+                confBand_L[i] = fx
+            if confBand_U[i] is None or fx > confBand_U[i]: 
+                confBand_U[i] = fx
     return confBand_L, confBand_U
 
 def conf_band_bs_dralpha(x, q, f, opt, V, I, theta_samples):
