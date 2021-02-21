@@ -5,15 +5,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from omnetpp.scave import results, chart, utils, plot, vectorops as ops
 from scipy.integrate import quad
-import os
 
 #########################################################################
 import sys
-from IPython.utils import strdispatch
-from cProfile import label
-from _ast import If
 sys.path.append('/home/dennis/git/bootstrapcb/python')
-import bootstrapcb
+import bootstrapcb as cb
 #########################################################################
 
 # get chart properties
@@ -90,110 +86,77 @@ if f_str:
     for line in code: parsed_code += "  "+line+"\n"
     exec(parsed_code)
     # parse p0
-    p0 = props["p0"]
+    p0 = None
+    p0_str = props["p0"]
     try:  
-        p0 = eval(props["p0"])
+        p0 = eval(p0_str)
     except: 
         plot.set_warning("Parameter not given.")
         exit(1)
-    # get some pdf
+    # get pdf if given
+    pdf = None
     pdf_str = props["pdf"]
     if pdf_str: 
         code = pdf_str.split("\n")
         parsed_code = "def pdf(x,y,theta):\n"
         for line in code: parsed_code += "  "+line+"\n"
         exec(parsed_code) 
-    else:
-        pdf = lambda x,y,theta: np.exp(-(y-f(x,theta))**2 / (2*theta[0]**2)) / np.sqrt(2*np.pi*theta[0]**2)
-    # get some cdf 
+    # get cdf if given
+    cdf = None
     cdf_str = props["cdf"] 
     if cdf_str: 
         code = cdf_str.split("\n")
         parsed_code = "def cdf(x,y,theta):\n"
         for line in code: parsed_code += "  "+line+"\n"
-        exec(parsed_code)
-    else:
-        cdf = lambda x,y,theta: (1 + math.erf((y-f(x,theta)) / np.sqrt(2*[theta[0]**2]))) / 2
-    # get pdf if cdf is given
-    if cdf_str and not pdf_str:
-        pdf = nd.Gradient(lambda var: cdf(x,var,theta))
-    # get cdf if pdf is given
-    if not cdf_str and pdf_str:
-        cdf = lambda x,y,theta: quad(lambda var: pdf(x,var,theta), -np.inf, y)
-    # MLE 
-    opt, V, I = cb.mle(xs, ys, pdf, p0, info=True) 
-    mean = [f(x_i, opt) for x_i in x] 
+        exec(parsed_code)  
+    # get class instance
+    bscb = cb.cb_class(xdata, ydata, f, p0, pdf, cdf)  
+    # MLE
+    mean, V = bscb.mle(x)   
     df = pd.DataFrame(data={ 
         "x": x, 
         "mean": mean  
     }) 
-    df = df.set_index(["x"])      
-
+    df = df.set_index(["x"])
+ 
 confidence_level_str = props["confidence_level"] 
 if f_str and confidence_level_str:   
-    method_str = props["method"]
-    # get BS samples
-    if method_str[:9] == "Bootstrap":  
-        # look for local BS samples, else calculate and cache them
-        try: 
-            print("Importing samples")
-            file_path = os.getcwd()+"/dict.tmp"
-            file = open(file_path)
-            dict = file.read()
-            dict = eval(dict) 
-            x_samples = dict['x_samples']
-            y_samples = dict['y_samples']
-            theta_samples = dict['theta_samples']  
-            assert len(theta_samples[0]) == len(p0)
-            assert True 
-            file.close()
-            print("Successfully imported samples")
-        except:
-            x_samples, y_samples, theta_samples = cb.generate_y_param(xdata, ydata, pdf, opt, B=100, n=50)
-            dict = {
-                'x_samples': x_samples,
-                'y_samples': y_samples,
-                'theta_samples': theta_samples
-            }
-            file_path = os.getcwd()+"/dict.tmp"
-            file = open(file_path,"w")
-            file.write( str(dict) ) 
-            file.close()             
+    method_str = props["method"]           
     # calculate CB
     confidence_level = float(confidence_level_str[:-1])
     c = 0
     if method_str == "Pointwise delta-method":
-        conf_l, conf_u = cb.conf_band_delta(x, confidence_level, f, opt, V)
+        conf_l, conf_u = bscb.conf_band_delta(x, confidence_level)
         df["cb_l"+"*"*c] = conf_l   
         df["cb_u"+"*"*c] = conf_u
         c += 1
     if method_str == "Simultaneous delta-method":
-        conf_l, conf_u = cb.conf_band_delta(x, confidence_level, f, opt, V)
+        conf_l, conf_u = bscb.conf_band_delta(x, confidence_level)
         df["cb_l"+"*"*c] = conf_l   
         df["cb_u"+"*"*c] = conf_u
         c += 1
     if method_str == "Simultaneous delta-method (bootstrapped)":
-        conf_l, conf_u = cb.conf_band_delta(x, confidence_level, f, opt, V)
+        conf_l, conf_u = bscb.conf_band_delta(x, confidence_level)
         df["cb_l"+"*"*c] = conf_l   
         df["cb_u"+"*"*c] = conf_u
         c += 1 
     if method_str == "Bootstrap likelihood-based region R_alpha":
-        conf_l, conf_u = cb.conf_band_bs_ralpha(x, confidence_level, f, opt, I, theta_samples)
-        df["cb_l"+"*"*c] = conf_l   
+        conf_l, conf_u = bscb.conf_band_bs_ralpha(x, confidence_level) 
+        df["cb_l"+"*"*c] = conf_l    
         df["cb_u"+"*"*c] = conf_u
         c += 1
-    #if method_str == "Bootstrap likelihood-based region dR_alpha":
-        conf_l, conf_u = cb.conf_band_bs_dralpha(x, confidence_level, f, opt, V, I, theta_samples)
+    if method_str == "Bootstrap likelihood-based region dR_alpha":
+        conf_l, conf_u = bscb.conf_band_bs_dralpha(x, confidence_level)
         df["cb_l"+"*"*c] = conf_l   
-        df["cb_u"+"*"*c] = conf_u
-        c += 1
-    #if method_str == "Bootstrap likelihood-based region dR_alpha (nelder-mead)":
-        conf_l, conf_u = cb.conf_band_approx_dralpha(x, confidence_level, f, opt, V, I, theta_samples)
+        df["cb_u"+"*"*c] = conf_u 
+        c += 1 
+    if method_str == "Bootstrap likelihood-based region dR_alpha (nelder-mead)":
+        conf_l, conf_u = bscb.conf_band_approx_dralpha(x, confidence_level)
         df["cb_l"+"*"*c] = conf_l   
         df["cb_u"+"*"*c] = conf_u   
         c += 1     
 
-legend_cols, _ = utils.extract_label_columns(df)
+legend_cols, _ = utils.extract_label_columns(df) 
 
 p = plot if chart.is_native_chart() else plt
 
