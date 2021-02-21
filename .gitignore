@@ -6,13 +6,13 @@
 out/
 simulations/results
 src/Makefile
-*_m.h
-*_m.cc
-bootstrapcb_dbg
-bootstrapcb
+src/*_m.h
+src/*_m.cc
+src/bootstrapcb_dbg
+src/bootstrapcb
 
 # Python
-__pycache__
+__pycache__/
 *.pyc
 
 # Sonstiges
@@ -20,3 +20,4 @@ müll*
 notsave/
 .computed/
 .Rproj.user
+*.tmp

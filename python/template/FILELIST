@@ -10,7 +10,7 @@ histogramchart_native.properties
 linechart_legacy.properties
 linechart_mpl.properties
 linechart_native.properties
-scatterchart_itervars_cb_mpl.properties
+regression_plot_mpl.properties
 scatterchart_itervars_mpl.properties
 scatterchart_itervars_native.properties
 scatterchart_legacy.properties
