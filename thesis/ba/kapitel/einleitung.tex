@@ -3,48 +3,42 @@
 
 \section{Motivation}
 % eine Seite = 40 Zeilen
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
+Bei der statistischen Analyse von Daten ist es oft üblich aufwendige theoretische Modelle vorauszusetzen zu müssen, um aussagekräftige Ergebnisse über eine Stichprobe zu erhalten.
+
+Die Auswahl eines statistischen Modells welches das wahre Modell so gut wie möglich repräsentiert, ist oft eine Herausforderung aber gleichzeitig ausschlaggebend für den Erfolg der Analyse.
+
+Nur bedingt erfüllte Annahmen führen zu falschen Aussagen, zu spezifische Modelle hingegen lassen sich nicht Computer gestützt umsetzen und müssen per Hand analysiert werden.
+
+Die Simulation der wahren Population durch die gegeben Stichprobe liefern hier einen Weg, diese Schwierigkeit zu umgehen.
+
+Die Idee solcher sogenannten Resampling-Verfahren ist aus einer kleinen Anzahl von Stichproben beliebig viele Stichproben zu generieren, indem die ursprünglichen Daten als Schätzer für die Grundgesamtheit dienen, von der nun beliebig oft gesampelt werden kann.
+
+Anstelle eine Verteilung vorauszusetzen, kann diese so mittels Monte-Carlo-Schätzung unter sehr allgemeinen Voraussetzungen angenähert werden.
+
+Efron ... zeigt das sogenannte Bootstrap Verfahren statistisch exakt ist und neben den zahlreichen Anwendungsgebieten überraschend gute Eigenschaften haben kann.
+
+Einziger Nachteil ist der zu leistende Rechenaufwand, allerdings wird die Rechenleistung von Computern immer besser und günstiger.
+
+Bootstrap Verfahren sind sehr Einfach zu implementieren und liefern somit eine wunderbare Alternative gegenüber analytischen Verfahren, um die Verteilung einer Stichprobe zu bestimmen
+
+beliebtes anwendungsgebiet sind konfidenz intervalle für den schätzer einer zufallsvariable...
+
+Bootstrap-Ansätze zur Bestimmung von Konfidenz-Intervallen sind bereits gut bekannt und weit verbreitet. 
+
+Implementierungen sowohl der analytischen Ansätze als auch Bootstrap-Methoden sind eigentlich in allen gängigen statistischen Analyse-Tools vorhanden. 
+
+hat man statt einer jedoch mehrere zufallsvariablen, ist eine punktweise schätzung nicht sehr aussagekräftig...
+
+stattessen benötigt man eine simultane berechischätung welche die schätzer aller zufallsvariablen mit gegebener wahrscheinlichkeit enthält, man spricht dann von konfidenzband
+
+Methoden zu Bestimmung von Konfindenz-Bändern wurden bisher wenn überhaupt, eher in der Literatur behandelt.
+
+Gerade Bootstrap finden noch kaum Anwendung bei der Bestimmung von Konfidenz-Bändern.
 
 \section{Zielsetzung}
+Ziel dieser Arbeit ist es einige solcher Ansätze vorstellen und im Kontekt von OMNeT++ umsetzten.
+
+
 - \\
 - \\
 - \\
@@ -67,6 +61,11 @@
 - \\
 
 \section{Aufbau der Arbeit}
+In Kapitel 2 werden dazu zuerst ein paar Grundlagen besprochen.
+
+Die darauf folgenden Abschnitte sind in die drei Hautschwerpunkte der Arbeit unterteilt, Vorstellung der Algorithmen, Implementierung und Auswertung.
+
+Schließlich folgt in Kapitel 6 noch ein Fazit.
 - \\
 - \\
 - \\

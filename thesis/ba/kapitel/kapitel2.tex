@@ -1,6 +1,65 @@
 % kapitel2.tex
 \chapter{Grundlagen}
 \label{chapter:kap2}
+
+Zuerst besprechen wir ein paar Grundlagen, die notwendig für die folgenden Kapitel sind
+
+\section{Simulationsstudien}
+Eine wesentliche Aufgabe der Statistik ist das Analysieren von realen System, um exakte Informationen zu relevanten Fragen zu erhalten.
+
+Dabei kann es sich zum Beispiel um die Optimierung eines Herstellungsprozesses handeln.
+
+Der Prozess in diesem Fall wird System genannt und Ziel der Analyse ist das Verhalten des Systems unter Veränderung der Eingabeparameter zu bestimmen.
+
+Es gibt verschiedene Wege das Verhalten eines Systems zu studieren, Law... gibt einen guten Überblick zu diesem Thema.
+
+Verschiedene Möglichkeiten ein System zu studieren werden von Law in folgender Grafik dargestellt.
+
+Grundsätzlich kann man unterscheiden zwischen Experimenten an dem echten System und an einem Model des Systems. 
+
+Experimente an dem echten System würden bedeuten, dass man die physikalischen Gegebenheiten des System nach belieben verändern kann und die Daten für die Analyse anhand des realen Systems erheben kann
+
+Dieser Ansatz ist immer erstrebenswert, da Unsicherheiten in der Wahl des Modells komplett eliminiert werden.
+
+Allerdings ist dies nur in den seltensten Fällen möglich, da man in der Regel nur begrenzte Material- oder Geldressourcen zur Verfügung hat oder das System durch die Änderung zu sehr gestört wird.
+
+Die am meisten Eingesetzte Variante ist die Simulation, bei der Versucht wird das reale Model so genau wie möglich mathematisch abzubilden und durch Computer gestützte Simulation beliebig viele Daten zu erheben.
+
+Die Versuche der Simulation sind iid was für die späteren Methoden ein wesentlicher Faktor ist
+
+Ein Modell welches das reale Modell repräsentiert wird Simulationsmodell genannt und kann beliebig komplex sein. 
+
+In unserem Fall betrachten wir ...
+
+Ein einfaches Simulationsmodell welches eine ...Queue repräsentiert ist das M/M/1-Modell, diese sind sehr Verbreitet in der Statistik und gut bereits recherchiert.
+
+Law gibt eine gute Einführung und unser Szenario orientiert sich stark daran.
+
+Nachdem die Daten durch die Simulation erhoben wurden, wollen wir das Verhalten des Systems unter Veränderung der Parameter (etwa. der arivalrate oder servicetime) analysieren und durch eine Formel angeben.
+
+Solch eine Formel die wiederum das Simulationsmodell vereinfacht repräsentiert ist auch ein mathematisches Modell und wird Metamodell genannt (bzw. Regressions Metamodell falls...)
+
+Barton gibt eine gute Einführung für die Bestimmung solcher Metamodelle
+
+Wir nehmen an, dass das Simulationsmodell das reale Modell korrekt repräsentiert, das Metamodell ist dann ... in Abhängigkeit von einem Parametervektor
+
+Die Berechnung der Regressionsfunktion und Analyse der Methoden ist für uns primäres ziel der Simulationsstudie
+
+Angenommen das Modell repräsentiert die Simulation und es ex. ein wahrer wert theta0, dann ist das erste Problem diesen zu bestimmen bzw zu schätzen
+
+Die mit Abstand effektivste Methode theta in parametrischen Studien zu schätzen ist die maximum likelyhood methode, welche im nächsten abschnitt kurz vorgestellt werden soll
+
+\subsection{M/M/1-Modell}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Quellen 
+
+Barton,  R.R.,  1998.  Simulation  metamodels:
+
+Law,  A.M.  and  Kelton,  W.D.  1991.  Simulation  modeling  and analysis:
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{equation}
 y_j = \eta(x_j, \theta_0) + \epsilon_j, 
 \quad j=1,2,...,n \text{ und } \epsilon \sim N(0, \sigma^2)
@@ -18,11 +77,30 @@ y_j = \eta(x_j, \theta_0) + \epsilon_j,
 - epsilon bezeichnet den für alle design punkte unabhängigen zufallsfehler mit mean 0\\
 - oft wird angenommen dass die varianz für alle design punkte gleich ist, aber nicht zwingend\\
 - jedoch mean(epsilon)=0 bedeutet eta gibt den erwartungs wert der statistik an\\
-- die berechnung der regressionsfunktion ist primäres ziel der simulations studie\\
-- angenommen das modell repräsentiert die simulation und es ex ein wahrer wert theta0, dann ist das erste problem diesen zu bestimmen bzw zu schätzen\\
-- die mit abstand effektivste methode theta in parametrischen studien zu schätzen ist die maximum likelyhood methode, welche im nächsten abschnitt kurz vorgestellt werden soll\\
 
-\section{Maximum Likelihood Estimation}
+
+\section{Parameter-Schätzer}
+Hat man ein mathematisches Modell (bzw. regression metamodell) bestimmt, welches die Verteilung einer Datenmenge beschreiben soll, ist die Frage nun, was ist der wahre Wert des Parameters unter der Annahme, dass das Modell korrekt ist?
+
+Der Parameter ist eine Zufallsvariable, die unter sehr allgemeinen Voraussetzungen multivariat normalverteilt um den wahren Wert ist.
+
+
+
+Bei der linearen Regression wir oft die Kleinste-Quadrate-Methode verwendet. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Quellen
+Chernick, M.R. 1999.Bootstrap Methods, A Practitioners Guide 3.1.1.
+
+Efron, B. (1982) The Jackknife, the Bootstrap and Other Resampling Plans 9.1.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Kleinste-Quadrate-Schätzer}
+\subsection{Maximum-Likelihood-Schätzer}
+
+
+
 % eine Seite = 40 Zeilen
 - gegeben sei eine menge von unabhängigen stichproben, erhalten von verteilungsfunktionen fi\\
 - in unserem regressionsfall zb sind die yi werte verteilt mit... sodass wir als verteilungsfunktionen ... erhalten\\
@@ -34,38 +112,15 @@ y_j = \eta(x_j, \theta_0) + \epsilon_j,
 - wichtige erkenntnisse über den mle sind nun dass unter sehr allgemeinen voraussetzungen mle multivariat normalverteilt ist mit mean theta0(wahrer wert) und varianz matrix V(theta0)\\
 - wobei V sich als inverse der fischer informations matrix berechnen lässt, welches widerum der erwartungswert der hessischen matrix der loglik ist\\
 - V kann durch V(mle) angenähert werden\\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
 
-\section{Confidence intervals}
+
+\section{GoF-Tests}
+\subsection{Kolmogorov-Smirnov Test}
+\subsection{Anderson-Darling Test}
+\subsection{Chi-Quadrat Test}
+
+
+\section{Konfidenzintervalle}
 \begin{equation}
 \mathbb{P} \left( \theta_L \le \theta_0 \le \theta_U \right) \geq 1-\alpha
 \end{equation}
@@ -87,17 +142,7 @@ y_j = \eta(x_j, \theta_0) + \epsilon_j,
 - herleitung von russel zeigen...\\
 - man beachte dass die ableitung und ... durch finite difference methoden berechnet werden könnne\\
 - nachteil dieser herangehensweise sind ... -> bootstrap\\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
 
-\section{Simultaneous Confidence Intervals}
 \begin{equation}
 \mathbb{P} \left(
   y_L(x) \le \eta(x, \theta_0) \le y_U(x)
@@ -119,6 +164,11 @@ z_{\alpha/2}
 }
 \end{equation}
 
+
+\section{Konfidenzbänder}
+Banks, J. 1998. Handbook of simulation: 
+- 7.4 Multivariate Estimation
+
 - Quellen: Miller 1981\\
 - interessanter für uns, als die schätzung von confidence intervallen für die einzelnen design punkte, ist eine schätzung von confidence intervallen, die für alle werte simultan gilt\\
 - gesucht ist ein band welches mit gewünschter wahrscheinlichkeit die gesamte regressionsfunktion überdeckt\\
@@ -127,17 +177,7 @@ z_{\alpha/2}
 - beispiel von russel zeigen ...\\
 - für kleine n aller dings erhält man durch diesen ansatz oft fälschlich höhere werte für die konfidence als der eigentlich berechnete konfidence\\
 - bootstrap kann in diesem fall helfen\\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
 
-\section{Likelihood based Confidence Region}
 \begin{equation}
 \mathbb{P} \left(
   y_L(x) \le \eta(x, \theta_0) \le y_U(x) 
@@ -159,24 +199,28 @@ y_L(x), y_U(x) = \eta(x, \hat\theta) \mp
 }
 \end{equation}
 
+
 \section{Coverage Error}
 - die qualität der confindence bereiche wir oft in form sogenannter coverage error beschrieben\\
 - diese können durch asymptotische theorie bestimmt werden, auch für die bootstrap versionen\\
 - coverage error ist in der regel O(1 / sqrt n) aber kann oft auf O(1 / n) durch balanced ci reduziert werden \\
 - coverage error kommt hauptsächlich vom bias, da der effekt entgegengesetzte ist links und rechts von null hebt er sich auf, falls die ci balanciert werden\\
 - coverage error kann als maß für den unterschied zwischen erreichter und gewünschter überdeckungswahrscheinlichkeit dienen\\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
 
-\section{Basic Bootstrap}
+
+
+Sobald ein Regressionsmodell den Daten angepasst wurde ist es üblich, ein Konfidenz-Interval anzugeben, welches die Genauigkeit der Regressionsfunktion anzeigt. 
+
+Für die einzelnen Zufallsvariablen ... sind solche Bereichsschätzer sehr einfach zu bestimmen. 
+
+Der mittels Maximum-Likelihood-Methode geschätzte Parameter ... für die Standardabweichung liefert bereits das Konfidenz-Intervall ... 
+
+
+\section{Resampling Verfahren}
+
+\subsection{Jackknife}
+
+\subsection{Bootstrap}
 \begin{algorithm} 
   \caption{Basic-Sampling Methode} 
   \label{algo:sampling} 
@@ -207,11 +251,6 @@ y_L(x), y_U(x) = \eta(x, \hat\theta) \mp
 		\STATE erstelle die EDF $G_n(.|s*)$ 
   \end{algorithmic}
 \end{algorithm} 
-
-\section{Parametric Bootstrap}
-
-
-
 
 
 
