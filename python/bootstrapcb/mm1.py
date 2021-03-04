@@ -23,6 +23,7 @@ class System:
         self.service_rate = service_rate 
         self.current_time = 0  
         self.queue_list = []
+        self.time_series = {self.current_time: 0}
         self.processing_job = None
         self.finished_jobs = []
         
@@ -42,15 +43,17 @@ class System:
                     self.queue_list.remove(self.processing_job)
                 else:
                     break
-            if self.processing_job.service_end_time <= new_job.arrival_time:
+            if self.processing_job.service_end_time < new_job.arrival_time:
                 current_time = self.processing_job.service_end_time
                 self.finished_jobs.append(self.processing_job)
-                self.processing_job = None        
+                self.processing_job = None     
+                self.time_series[current_time] = len(self.queue_list)    
             else:
                 break    
                 
         current_time = new_job.arrival_time
         self.queue_list.append(new_job)
+        self.time_series[current_time] = len(self.queue_list) + (1 if self.processing_job else 0)
         self.current_time = current_time
 
 class Simulator:
@@ -70,28 +73,30 @@ class Simulator:
             job_id += 1
 
         print("Total jobs: " + str(len(this_jobs)))
-        return this_jobs
+        return self.system.time_series, this_jobs
         
 # def plot_simulation_jobs_vs_t(jobs, arrival_rate, sumarize):
 
 if __name__ == '__main__':
     results = {}
     average = {}
-    for arrival_rate in LAMBDAS:
+    for arrival_rate in LAMBDAS:   
         simulator = Simulator(arrival_rate, MU)
-        result = simulator.run(TOTAL_SIMULATION_TIME)
+        result, jobs = simulator.run(TOTAL_SIMULATION_TIME)
+
+        # x = np.array([x for x in result])
+        # y = np.array([result[x] for x in result])
+        # plt.step(x,y, 'g^--', where='post')
+        # plt.show()        
+
+        average_jobs = 0
         for item in result:
-            
-        average_jobs = 
+            if item > 0: 
+                average_jobs += result[last_item] * (item - last_item)
+            last_item = item 
+        average_jobs /= last_item
         results[arrival_rate] = [ average_jobs,
                                   arrival_rate / (MU - arrival_rate) ] 
-
-        # x = [x for x in result]
-        # y = [result[i] for i in x]
-        # plt.plot(x,y)
-        # plt.hlines(results[arrival_rate][0],0,TOTAL_SIMULATION_TIME,colors='g')
-        # plt.hlines(results[arrival_rate][1],0,TOTAL_SIMULATION_TIME,colors='b')
-        # plt.show()        
 
     lamdas = [lamda for lamda in results]
     the_simulation_data = [lamdas, [results[lamda][0] for lamda in lamdas]]
