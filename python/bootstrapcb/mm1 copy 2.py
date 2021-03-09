@@ -16,22 +16,21 @@ class Job:
         self.service_time = 0
         self.service_start_time = 0
         self.service_end_time = 0
-        self.status = 0  # 0 for created, 1 for queued, 2 for processing, 3 for completed
 
 class System:
     def __init__(self, arrival_rate, service_rate):
         self.arrival_rate = arrival_rate 
         self.service_rate = service_rate 
-        self.jobs = {} 
         self.time_series = {0: 0}
+        self.job_count_hist = {}
+        self.jobs = {} 
         self.job_list = []
-        self.queue_list = []
         self.processing_job = None
+        self.queue_list = []
         self.finished_jobs = []
-        self.job_count_hist = []
         
     def run(self, simulation_time):
-        print("\nTime: 0 sec, Simulation starts for λ=" + str(self.arrival_rate))
+        print("\nTime: 0 sec, Simulation starts for lambda=" + str(self.arrival_rate))
         
         job_id = 1
         current_time = 0
@@ -45,13 +44,13 @@ class System:
             job_id += 1
             current_time = new_job.arrival_time
 
-        sim_time = simulation_time/10000
+        sim_time = simulation_time/1000
         current_time = 0
         while sim_time <= simulation_time:
             while True:
-                if ( len(self.job_list) > 0 and 
-                     self.processing_job and
-                     self.processing_job.service_end_time < self.job_list[0].arrival_time ):
+                if  (   len(self.job_list) > 0 and 
+                        self.processing_job and
+                        self.processing_job.service_end_time <= self.job_list[0].arrival_time ):
                     if self.processing_job.service_end_time > sim_time: break
                     finished_job = self.processing_job 
                     self.processing_job = None   
@@ -59,9 +58,9 @@ class System:
                     current_time = finished_job.service_end_time
                     self.time_series[current_time] = len(self.queue_list)
                     continue
-                if ( len(self.job_list) > 0 and 
-                     self.processing_job and
-                     self.processing_job.service_end_time > self.job_list[0].arrival_time ):
+                if  (   len(self.job_list) > 0 and 
+                        self.processing_job and
+                        self.processing_job.service_end_time > self.job_list[0].arrival_time ):
                     if self.job_list[0].arrival_time > sim_time: break
                     new_job = self.job_list[0]
                     self.job_list.remove(new_job)
@@ -70,8 +69,8 @@ class System:
                     self.time_series[current_time] = len(self.queue_list) + 1
                     continue
                 if not self.processing_job:
-                    if ( len(self.job_list) > 0 and 
-                         len(self.queue_list) == 0 ):
+                    if  (   len(self.job_list) > 0 and 
+                            len(self.queue_list) == 0 ):
                         if self.job_list[0].arrival_time > sim_time: break
                         new_job = self.job_list[0]
                         self.job_list.remove(new_job)
@@ -85,44 +84,13 @@ class System:
                     continue
                 break
 
-            self.job_count_hist.append( len(self.queue_list) + (1 if self.processing_job else 0) )
-            sim_time += simulation_time/10000
+            self.job_count_hist[current_time] = len(self.queue_list) + (1 if self.processing_job else 0) 
+            sim_time += simulation_time/1000
 
         print("Total jobs: " + str(len(self.jobs)))
         return self.time_series, self.job_count_hist, self.jobs
         
 # def plot_simulation_jobs_vs_t(jobs, arrival_rate, sumarize):
-
-def I(n, x):
-    h = 0.01
-    old_sum = -1
-    sum = 0
-    j = 0
-    while np.abs(sum - old_sum) > h:
-        old_sum = sum
-        sum += ( (x/2)**(n+2*j) ) / ( np.prod(range(1,n))*np.prod(range(1,n+j)) )
-        j += 1
-    return sum
-
-def P(n, t):
-    _lambda = 2
-    _mu = 10
-    _rho = _lambda / _mu
-
-    h = 0.01
-    old_sum = -1
-    sum = 0
-    j = n+2
-    while np.abs(sum - old_sum) > h:
-        old_sum = sum
-        sum += _rho**(-1/2) * I(j, 2*t*np.sqrt(_lambda*_mu))
-        j += 1
-
-    np.exp( -(_lambda+_mu)*t ) * ( 
-        _rho**(n/2) * I(n, 2*t*np.sqrt(_lambda*_mu)) +
-        _rho**((n-1)/2) * I(n+1, 2*t*np.sqrt(_lambda*_mu)) +
-        (1-_rho)*_rho**n * sum
-    )
 
 if __name__ == '__main__':
     results = {}
@@ -133,13 +101,21 @@ if __name__ == '__main__':
         # x = np.array([x for x in result])
         # y = np.array([result[x] for x in result])
         # plt.step(x,y, 'g^--', where='post')
-        # plt.show()   
+        # plt.show()
+
+        job_count_hist = [job_count_hist[c] for c in job_count_hist]   
         plt.hist(job_count_hist, density=True)
         rho = arrival_rate/MU
         testx = np.linspace(min(job_count_hist), max(job_count_hist), num=50)
         testy = [(1-rho)*rho**n for n in testx]
         plt.plot(testx, testy)
         plt.show()
+        for _ in range(10):
+            choice = np.random.choice(job_count_hist,size=3000)
+            test_hist = [c for c in choice]   
+            plt.hist(test_hist, density=True)
+            plt.plot(testx, testy)
+            plt.show()
 
         average = 0
         first_t = None
@@ -152,6 +128,8 @@ if __name__ == '__main__':
                 average += time_series[last_t] * (t - last_t)
                 last_t = t 
         average /= (last_t - first_t)
+
+        average = np.average([c for c in job_count_hist] )
 
         rho = arrival_rate/MU
         results[arrival_rate] = [ average,
