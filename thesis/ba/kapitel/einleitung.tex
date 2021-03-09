@@ -1,19 +1,58 @@
 % einleitung.tex
 \chapter{Einleitung}
+%cited by cheng
+\cite{AndersonDarling}
+\cite{Babu}
+\cite{Banks} %book
+\cite{Cheng1983} %!mainresult
+\cite{Cheng1987} %!mainresult
+\cite{Cheng2002} 
+\cite{Cheng2005}
+\cite{Cheng2015}
+\cite{Chernick} %book
+\cite{Cox} %book %MLE is normal distributed
+\cite{DAgostino} %book
+\cite{DavisonHinkley} %book
+\cite{Hall1987}
+\cite{Law} %book
+\cite{Miller} %book
+\cite{KanofskySrinivasan} %!mainresult
+\cite{SrinivasanWharton} %!mainresult
+\cite{Stute}
+%else
+\cite{Efron1979}
+\cite{Efron1986}
 
 \section{Motivation}
 % eine Seite = 40 Zeilen
-Bei der statistischen Analyse von Daten ist es oft üblich aufwendige theoretische Modelle vorauszusetzen zu müssen, um aussagekräftige Ergebnisse über eine Stichprobe zu erhalten.
 
-Die Auswahl eines statistischen Modells welches das wahre Modell so gut wie möglich repräsentiert, ist oft eine Herausforderung aber gleichzeitig ausschlaggebend für den Erfolg der Analyse.
+Die Statistik ist eine Disziplin der Mathematik, welches sich mit der Sammlung und Analyse von Daten beschäftigt.
 
-Nur bedingt erfüllte Annahmen führen zu falschen Aussagen, zu spezifische Modelle hingegen lassen sich nicht Computer gestützt umsetzen und müssen per Hand analysiert werden.
+Ziel ist auf den wahren Zusammenhang ... zwischen empirischen Werten und theoretischen Aussagen schließen zu können.
 
-Die Simulation der wahren Population durch die gegeben Stichprobe liefern hier einen Weg, diese Schwierigkeit zu umgehen.
+Dazu werden im Rahmen von Studien wiederholt Experimente durchgeführt dessen Ergebnisse Stichproben genannt werden.
 
-Die Idee solcher sogenannten Resampling-Verfahren ist aus einer kleinen Anzahl von Stichproben beliebig viele Stichproben zu generieren, indem die ursprünglichen Daten als Schätzer für die Grundgesamtheit dienen, von der nun beliebig oft gesampelt werden kann.
+Diese Stichproben dienen dann als Grundlage für die Analyse. 
 
-Anstelle eine Verteilung vorauszusetzen, kann diese so mittels Monte-Carlo-Schätzung unter sehr allgemeinen Voraussetzungen angenähert werden.
+Ziel ist es anhand der Verteilung der Daten aus den Stichproben auf die wahre Verteilung zu schließen
+
+Zwei der wichtigsten Probleme sind dabei die Bestimmung von Erwartungswert $E(X)$ und Varianz $\mathrm{Var}(X)$ einer Zufallsvariable $X$ 
+
+Der Erwartungswert beschreibt dabei genau den Wert, den die Zufallsvariable im Mittel annimmt. 
+
+Angenommen man könnte beliebig viele Stichproben ziehen, dann ergibt sich der Erwartungswert genau als der Durchschnitt der Ergebnisse.
+
+Die Varianz hingegen ist ein Maß für die Streuung der Zufallswerte. 
+
+Sie ist definiert als die zu erwartende quadratische Abweichung vom Erwartungswert und gibt somit an, wie groß die zu erwartenden Messfehler sind
+
+Wird der Erwartungswert der Stichprobe nun grafisch dargestellt, gibt man oft ein Konfidenzintervall an als Indikator für die Varianz und die Genauigkeit des geschätzten Mittelwerts an.
+
+Dies ist verbunden mit einem Signifikanzniveau und gibt an, in welchem Bereich sich der wahre Wert zu gegebener Wahrscheinlichkeit befindet.
+
+Ein beidseitiges 90\% Konfidenzintervall für eine Datenmenge die einer Normalverteilung angepasst wurde ist einfach durch oberen und unteren 95\%-Quantile geben.
+
+Ein weiter Ansatz ist der Einsatz von Bootstrap, welcher seit seiner Einführung durch Efron immer mehr an Beliebtheit gewonnen hat und heutzutage zu den Standardverfahren zählt.
 
 Efron ... zeigt das sogenannte Bootstrap Verfahren statistisch exakt ist und neben den zahlreichen Anwendungsgebieten überraschend gute Eigenschaften haben kann.
 
@@ -21,46 +60,52 @@ Einziger Nachteil ist der zu leistende Rechenaufwand, allerdings wird die Rechen
 
 Bootstrap Verfahren sind sehr Einfach zu implementieren und liefern somit eine wunderbare Alternative gegenüber analytischen Verfahren, um die Verteilung einer Stichprobe zu bestimmen
 
-beliebtes anwendungsgebiet sind konfidenz intervalle für den schätzer einer zufallsvariable...
-
-Bootstrap-Ansätze zur Bestimmung von Konfidenz-Intervallen sind bereits gut bekannt und weit verbreitet. 
-
 Implementierungen sowohl der analytischen Ansätze als auch Bootstrap-Methoden sind eigentlich in allen gängigen statistischen Analyse-Tools vorhanden. 
 
-hat man statt einer jedoch mehrere zufallsvariablen, ist eine punktweise schätzung nicht sehr aussagekräftig...
+Konfidenzintervalle finden insbesondere im Bereich der Regressionsanalyse Anwendung.
 
-stattessen benötigt man eine simultane berechischätung welche die schätzer aller zufallsvariablen mit gegebener wahrscheinlichkeit enthält, man spricht dann von konfidenzband
+Der Funktionswert der Regressions für einen festen Eingabewert kann hier als Zufallsvariable gesehen werden, die Breite des Konfidenzintervalls gibt dann jeweils an, wie genau die Regression für den gegeben Punkt ist.
 
-Methoden zu Bestimmung von Konfindenz-Bändern wurden bisher wenn überhaupt, eher in der Literatur behandelt.
+eine punktweise schätzung ist hier jedoch nicht sehr aussagekräftig...
 
-Gerade Bootstrap finden noch kaum Anwendung bei der Bestimmung von Konfidenz-Bändern.
+Eine Steigerung des ganzen und für Regressionsfunktionen interessante Variante ist das sogenannte Konfidenzband, welches mit gegebener Wahrscheinlichkeit die gesamte wahre Regressionsfunktion enthält.
+
+Die einfachste Methode dafür ist Bonferoni, allerding nicht sehr attraktiv
+
+Die Bestimmung eines solchen simultanen Konfidenzbereichs durch andere analytische Methoden ist oft mit starken Annahmen über Verteilungen verbunden, die im allgemeinen nicht erfüllt sind.
+
+Nur bedingt erfüllte Annahmen führen zu falschen Aussagen, zu spezifische Modelle hingegen lassen sich nicht Computer gestützt umsetzen und müssen per Hand analysiert werden.
+
+Bootstrap kann auch hier eingesetzt werden, um auf Annahmen zu verzichten.
+
+Allerdings sind Umsetzung solcher Ansätze selten bis nicht existent.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Zielsetzung}
 Ziel dieser Arbeit ist es einige solcher Ansätze vorstellen und im Kontekt von OMNeT++ umsetzten.
 
+Als Grundlage dienen die Beiträge von Russel bei der Winter Simulation Konferenz ...
 
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
-- \\
+Die Ansätze von Russel beruhen im wesentlichen darauf einen Bereich zu bestimmen, in dem die Parameter der anzupassenden Funktion mit gegebner Wahrscheinlichkeit liegen.
+
+Der Fokus dieser Arbeit soll auf zwei Bootstrap Ansätzen liegen, parametrisch und nicht parametrisch
+
+Außerdem wir ein weitere Resampling Methode Vorgestellt, die nur den Rand der Region abtastet
+
+Da Ergebnisanalysen im OMNeT++ vorzugsweise in Python durch geführt werden, dient Python als Implementierungssprache.
+
+Getestet werden sollen die Algorithmen im Anschluss anhand einer OMNeT++ Simulation.
+
+Dazu wird ein einfaches M/M/1-Modell implementiert dessen Eigenschaften gut bekannt sind und sich somit hervorragend für Analyse und den Vergleich zu Analytischen Methoden eignet.
 
 \section{Aufbau der Arbeit}
+Die Arbeit ist dementsprechend unterteilt in drei Hauptabschnitte.
+
+Nachdem in Kapitel 2 einige Grundlage besprochen wurden, werden in Kapitel 3 die zu implementierenden Methoden vorgestellt
+
+Kapitel 4 beschäftigt sich mit der Umsetzung in OMNeT++. Es wird allgemein gezeigt wie Parameterestudien im OMNeT++ durchgeführt werden können und 
+
 In Kapitel 2 werden dazu zuerst ein paar Grundlagen besprochen.
 
 Die darauf folgenden Abschnitte sind in die drei Hautschwerpunkte der Arbeit unterteilt, Vorstellung der Algorithmen, Implementierung und Auswertung.
